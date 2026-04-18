@@ -1,0 +1,315 @@
+<div class="browse-page">
+  <!-- Header -->
+  <div class="browse-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1 class="page-title">تصفح المشاريع المتاحة</h1>
+          <p class="page-subtitle">اكتشف أفضل الفرص الاستثمارية في السوق</p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-number">{{ totalProjects }}</span>
+            <span class="stat-label">مشروع متاح</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="browse-layout">
+      <!-- Filters Sidebar -->
+      <aside class="filters-sidebar" [class.open]="filtersOpen">
+        <div class="filters-header">
+          <h3>تصفية النتائج</h3>
+          <button class="btn-text" (click)="resetFilters()">إعادة تعيين</button>
+        </div>
+
+        <!-- Search -->
+        <div class="filter-section">
+          <label class="filter-label">بحث</label>
+          <div class="search-box">
+            <input
+              type="text"
+              [(ngModel)]="filters.search"
+              (input)="onFiltersChange()"
+              placeholder="ابحث عن مشروع..."
+              class="search-input"
+            />
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="filter-section">
+          <label class="filter-label">الفئة</label>
+          <div class="filter-options">
+            <label class="filter-option" *ngFor="let cat of categories">
+              <input
+                type="radio"
+                name="category"
+                [value]="cat.value"
+                [(ngModel)]="filters.category"
+                (change)="onFiltersChange()"
+              />
+              <span class="option-label">
+                <span class="option-icon">{{ cat.icon }}</span>
+                <span>{{ cat.label }}</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-section">
+          <label class="filter-label">نطاق السعر</label>
+          <div class="price-inputs">
+            <input
+              type="number"
+              [(ngModel)]="filters.minPrice"
+              (input)="onFiltersChange()"
+              placeholder="من"
+              class="price-input"
+            />
+            <span class="price-separator">-</span>
+            <input
+              type="number"
+              [(ngModel)]="filters.maxPrice"
+              (input)="onFiltersChange()"
+              placeholder="إلى"
+              class="price-input"
+            />
+          </div>
+          <div class="price-presets">
+            <button
+              *ngFor="let preset of pricePresets"
+              (click)="applyPricePreset(preset)"
+              class="preset-btn"
+            >
+              {{ preset.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="filter-section">
+          <label class="filter-label">ترتيب حسب</label>
+          <select class="filter-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+            <option value="newest">الأحدث</option>
+            <option value="price-low">السعر: من الأقل للأعلى</option>
+            <option value="price-high">السعر: من الأعلى للأقل</option>
+            <option value="popular">الأكثر مشاهدة</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- Projects Grid -->
+      <div class="projects-content">
+        <!-- Mobile Filters Toggle -->
+        <button class="mobile-filters-toggle" (click)="filtersOpen = !filtersOpen">
+          <span class="toggle-icon">⚙️</span>
+          <span>تصفية</span>
+          <span class="filters-badge" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
+        </button>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading">
+          <div class="spinner"></div>
+          <p>جاري تحميل المشاريع...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading && projects.length === 0">
+          <div class="empty-icon">📭</div>
+          <h3>لا توجد مشاريع</h3>
+          <p>لم نجد أي مشاريع تطابق معايير البحث</p>
+          <button class="btn btn-primary" (click)="resetFilters()">إعادة تعيين الفلاتر</button>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="projects-grid" *ngIf="!loading && projects.length > 0">
+          <div class="project-card" *ngFor="let project of projects" (click)="openProject(project.id)">
+            <!-- Featured Badge -->
+            <div class="featured-badge" *ngIf="project.isFeatured">
+              🔥 مميز
+            </div>
+
+            <!-- Image -->
+            <div class="project-image">
+              <img [src]="project.mainImage" [alt]="project.title" />
+              <div class="image-overlay"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="project-content">
+              <!-- Category -->
+              <div class="project-category">{{ getCategoryLabel(project.category) }}</div>
+
+              <!-- Title & Description -->
+              <h3 class="project-title">{{ project.title }}</h3>
+              <p class="project-description">{{ project.shortDescription }}</p>
+
+              <!-- Metrics -->
+              <div class="project-metrics" *ngIf="project.monthlyRevenue || project.monthlyVisitors">
+                <div class="metric" *ngIf="project.monthlyRevenue">
+                  <span class="metric-icon">💰</span>
+                  <div>
+                    <span class="metric-value">${{ project.monthlyRevenue | number }}</span>
+                    <span class="metric-label">إيرادات شهرية</span>
+                  </div>
+                </div>
+                <div class="metric" *ngIf="project.monthlyVisitors">
+                  <span class="metric-icon">👥</span>
+                  <div>
+                    <span class="metric-value">{{ project.monthlyVisitors | number }}</span>
+                    <span class="metric-label">زائر شهرياً</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="project-footer">
+                <div class="project-price">
+                  <span class="price-label">السعر</span>
+                  <span class="price-value">${{ project.price | number }}</span>
+                </div>
+                <div class="project-stats">
+                  <span class="stat">
+                    <span class="stat-icon">👁️</span>
+                    {{ project.viewCount }}
+                  </span>
+                  <span class="stat" *ngIf="project.offerCount > 0">
+                    <span class="stat-icon">💼</span>
+                    {{ project.offerCount }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="!loading && totalPages > 1">
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            →
+          </button>
+
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="pagination-btn"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            ←
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Project Details Modal -->
+<div class="modal-overlay" *ngIf="selectedProject" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">✕</button>
+
+    <div class="modal-body">
+      <!-- Project Image -->
+      <div class="modal-image">
+        <img [src]="selectedProject.mainImage" [alt]="selectedProject.title" />
+      </div>
+
+      <!-- Project Details -->
+      <div class="modal-details">
+        <div class="modal-category">{{ getCategoryLabel(selectedProject.category) }}</div>
+        <h2 class="modal-title">{{ selectedProject.title }}</h2>
+        <p class="modal-description">{{ selectedProject.description }}</p>
+
+        <!-- Price -->
+        <div class="modal-price-section">
+          <div class="price-main">
+            <span class="price-label">السعر المطلوب</span>
+            <span class="price-amount">${{ selectedProject.price | number }}</span>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="modal-metrics">
+          <div class="metric-card" *ngIf="selectedProject.monthlyRevenue">
+            <span class="metric-icon">💰</span>
+            <div>
+              <span class="metric-value">${{ selectedProject.monthlyRevenue | number }}</span>
+              <span class="metric-label">إيرادات شهرية</span>
+            </div>
+          </div>
+          <div class="metric-card" *ngIf="selectedProject.monthlyProfit">
+            <span class="metric-icon">📈</span>
+            <div>
+              <span class="metric-value">${{ selectedProject.monthlyProfit | number }}</span>
+              <span class="metric-label">ربح صافي</span>
+            </div>
+          </div>
+          <div class="metric-card" *ngIf="selectedProject.monthlyVisitors">
+            <span class="metric-icon">👥</span>
+            <div>
+              <span class="metric-value">{{ selectedProject.monthlyVisitors | number }}</span>
+              <span class="metric-label">زوار شهرياً</span>
+            </div>
+          </div>
+          <div class="metric-card" *ngIf="selectedProject.ageInMonths">
+            <span class="metric-icon">📅</span>
+            <div>
+              <span class="metric-value">{{ selectedProject.ageInMonths }}</span>
+              <span class="metric-label">شهر</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="tech-stack" *ngIf="selectedProject.techStack && selectedProject.techStack.length > 0">
+          <h4>التقنيات المستخدمة</h4>
+          <div class="tech-tags">
+            <span class="tech-tag" *ngFor="let tech of selectedProject.techStack">{{ tech }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button class="btn btn-primary btn-lg btn-full">
+            <span class="btn-icon">💼</span>
+            تقديم عرض
+          </button>
+          <button class="btn btn-secondary btn-lg btn-full">
+            <span class="btn-icon">💬</span>
+            تواصل مع البائع
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="modal-stats">
+          <div class="stat-item">
+            <span class="stat-icon">👁️</span>
+            <span>{{ selectedProject.viewCount }} مشاهدة</span>
+          </div>
+          <div class="stat-item" *ngIf="selectedProject.offerCount > 0">
+            <span class="stat-icon">💼</span>
+            <span>{{ selectedProject.offerCount }} عروض</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

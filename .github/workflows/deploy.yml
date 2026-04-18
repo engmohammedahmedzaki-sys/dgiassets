@@ -1,0 +1,43 @@
+name: 🚀 Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "📦 Starting deployment..."
+            cd /var/www/marketplace/app
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Backend deployment
+            echo "🔧 Building Backend..."
+            cd backend
+            npm install --production
+            npm run build
+            pm2 restart marketplace-api --update-env
+            
+            # Frontend deployment
+            echo "🎨 Building Frontend..."
+            cd ../frontend
+            npm install
+            npm run build
+            
+            # Copy build to nginx directory
+            rm -rf /var/www/marketplace/frontend-dist/*
+            cp -r dist/frontend/browser/* /var/www/marketplace/frontend-dist/
+            
+            echo "✅ Deployment complete!"

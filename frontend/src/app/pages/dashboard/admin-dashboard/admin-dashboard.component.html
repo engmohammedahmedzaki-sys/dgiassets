@@ -1,0 +1,227 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="container">
+      <h1>🛡️ لوحة تحكم المدير</h1>
+      <p>إدارة كاملة للمنصة</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button 
+        class="tab" 
+        [class.active]="selectedTab === 'overview'"
+        (click)="selectTab('overview')"
+      >
+        📊 نظرة عامة
+      </button>
+      <button 
+        class="tab" 
+        [class.active]="selectedTab === 'projects'"
+        (click)="selectTab('projects')"
+      >
+        💼 المشاريع
+      </button>
+      <button 
+        class="tab" 
+        [class.active]="selectedTab === 'users'"
+        (click)="selectTab('users')"
+      >
+        👥 المستخدمين
+      </button>
+      <button 
+        class="tab" 
+        [class.active]="selectedTab === 'offers'"
+        (click)="selectTab('offers')"
+      >
+        💰 العروض
+      </button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content" *ngIf="selectedTab === 'overview'">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">💼</div>
+          <div class="stat-info">
+            <h3>{{ stats.totalProjects }}</h3>
+            <p>إجمالي المشاريع</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <h3>{{ stats.totalUsers }}</h3>
+            <p>إجمالي المستخدمين</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <h3>{{ stats.totalOffers }}</h3>
+            <p>إجمالي العروض</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <h3>${{ stats.totalRevenue | number }}</h3>
+            <p>إجمالي الإيرادات</p>
+          </div>
+        </div>
+
+        <div class="stat-card success">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <h3>{{ stats.activeProjects }}</h3>
+            <p>مشاريع نشطة</p>
+          </div>
+        </div>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <h3>{{ stats.soldProjects }}</h3>
+            <p>مشاريع مباعة</p>
+          </div>
+        </div>
+
+        <div class="stat-card info">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <h3>{{ stats.pendingProjects }}</h3>
+            <p>قيد المراجعة</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h2>إجراءات سريعة</h2>
+        <div class="actions-grid">
+          <button class="action-btn" (click)="selectTab('projects')">
+            <span class="action-icon">💼</span>
+            <span>إدارة المشاريع</span>
+          </button>
+          <button class="action-btn" (click)="selectTab('users')">
+            <span class="action-icon">👥</span>
+            <span>إدارة المستخدمين</span>
+          </button>
+          <button class="action-btn" (click)="loadProjects()">
+            <span class="action-icon">🔄</span>
+            <span>تحديث البيانات</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects Tab -->
+    <div class="tab-content" *ngIf="selectedTab === 'projects'">
+      <div class="content-header">
+        <h2>إدارة المشاريع</h2>
+        <button class="btn btn-primary" (click)="loadProjects()">
+          🔄 تحديث
+        </button>
+      </div>
+
+      <div class="error-message" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>جاري التحميل...</p>
+      </div>
+
+      <div class="projects-table" *ngIf="!loading && projects.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>العنوان</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th>الحالة</th>
+              <th>المشاهدات</th>
+              <th>العروض</th>
+              <th>التاريخ</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of projects">
+              <td class="project-title">{{ project.title }}</td>
+              <td>{{ getCategoryText(project.category) }}</td>
+              <td class="price">${{ project.price | number }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(project.status)">
+                  {{ getStatusText(project.status) }}
+                </span>
+              </td>
+              <td>{{ project.viewCount }}</td>
+              <td>{{ project.offerCount }}</td>
+              <td class="date">{{ project.createdAt | date:'short' }}</td>
+              <td class="actions">
+                <button 
+                  class="btn-icon btn-success" 
+                  title="موافقة"
+                  (click)="approveProject(project.id)"
+                  *ngIf="project.status === 'pending'"
+                >
+                  ✓
+                </button>
+                <button 
+                  class="btn-icon btn-warning" 
+                  title="رفض"
+                  (click)="rejectProject(project.id)"
+                  *ngIf="project.status === 'pending'"
+                >
+                  ✗
+                </button>
+                <button 
+                  class="btn-icon btn-danger" 
+                  title="حذف"
+                  (click)="deleteProject(project.id)"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && projects.length === 0">
+        <div class="empty-icon">📭</div>
+        <h3>لا توجد مشاريع</h3>
+        <p>لم يتم العثور على أي مشاريع</p>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="tab-content" *ngIf="selectedTab === 'users'">
+      <div class="content-header">
+        <h2>إدارة المستخدمين</h2>
+      </div>
+      <div class="placeholder">
+        <h3>قريباً...</h3>
+        <p>سيتم إضافة إدارة المستخدمين قريباً</p>
+      </div>
+    </div>
+
+    <!-- Offers Tab -->
+    <div class="tab-content" *ngIf="selectedTab === 'offers'">
+      <div class="content-header">
+        <h2>إدارة العروض</h2>
+      </div>
+      <div class="placeholder">
+        <h3>قريباً...</h3>
+        <p>سيتم إضافة إدارة العروض قريباً</p>
+      </div>
+    </div>
+  </div>
+</div>

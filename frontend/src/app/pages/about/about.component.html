@@ -1,0 +1,109 @@
+<div class="about-page">
+  <!-- Hero Section -->
+  <div class="about-hero">
+    <div class="container">
+      <h1 class="hero-title">من نحن</h1>
+      <p class="hero-subtitle">منصتك الموثوقة لبيع وشراء المشاريع الرقمية</p>
+    </div>
+  </div>
+
+  <!-- Story Section -->
+  <section class="story-section">
+    <div class="container">
+      <div class="story-content">
+        <div class="story-text">
+          <h2>قصتنا</h2>
+          <p>
+            بدأت منصتنا من فكرة بسيطة: جعل عملية بيع وشراء المشاريع الرقمية أكثر أماناً وسهولة.
+            نؤمن بأن كل مشروع رقمي له قيمة، ونسعى لربط البائعين بالمشترين المناسبين.
+          </p>
+          <p>
+            منذ تأسيسنا، ساعدنا المئات من رواد الأعمال على بيع وشراء مشاريعهم بأمان وثقة.
+            نفتخر بأننا المنصة الأولى في المنطقة التي توفر نظام ضمان كامل (Escrow) لحماية جميع الأطراف.
+          </p>
+        </div>
+        <div class="story-image">
+          <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=400&fit=crop" alt="Our Story" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card" *ngFor="let stat of stats">
+          <div class="stat-icon">{{ stat.icon }}</div>
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2 class="section-title">لماذا نحن؟</h2>
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let feature of features">
+          <div class="feature-icon">{{ feature.icon }}</div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="container">
+      <div class="mission-content">
+        <h2>رؤيتنا ورسالتنا</h2>
+        <div class="mission-grid">
+          <div class="mission-card">
+            <h3>🎯 الرؤية</h3>
+            <p>أن نكون المنصة الرائدة عالمياً في مجال بيع وشراء المشاريع الرقمية</p>
+          </div>
+          <div class="mission-card">
+            <h3>🚀 الرسالة</h3>
+            <p>تسهيل عملية بيع وشراء المشاريع الرقمية من خلال توفير منصة آمنة وموثوقة</p>
+          </div>
+          <div class="mission-card">
+            <h3>💪 القيم</h3>
+            <p>الأمانة، الشفافية، الجودة، والالتزام برضا عملائنا</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section">
+    <div class="container">
+      <h2 class="section-title">فريق العمل</h2>
+      <div class="team-grid">
+        <div class="team-card" *ngFor="let member of team">
+          <div class="team-image">
+            <img [src]="member.image" [alt]="member.name" />
+          </div>
+          <h3>{{ member.name }}</h3>
+          <p>{{ member.role }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>جاهز للبدء؟</h2>
+      <p>انضم إلى آلاف المستخدمين الذين يثقون بنا</p>
+      <div class="cta-buttons">
+        <a href="/register" class="btn btn-primary btn-lg">ابدأ الآن</a>
+        <a href="/contact" class="btn btn-secondary btn-lg">تواصل معنا</a>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,438 @@
+<!-- Hero Section - Premium Animated -->
+<section class="hero" id="home">
+  <!-- Animated Background -->
+  <div class="hero-bg">
+    <div class="hero-gradient"></div>
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="hero-container">
+    <!-- Animated Badge -->
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span class="badge-text">
+        <span class="typing-wrapper">
+          <span class="typing-text">منصة موثوقة</span>
+        </span>
+        لبيع وشراء المشاريع الرقمية
+      </span>
+      <span class="badge-glow"></span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="title-line">
+        <span class="word" style="--delay: 0">اشترِ</span>
+        <span class="word" style="--delay: 1">أو</span>
+        <span class="word" style="--delay: 2">بع</span>
+        <span class="word highlight" style="--delay: 3">مشروعك</span>
+      </span>
+      <span class="title-line">
+        <span class="word" style="--delay: 4">بأمان</span>
+        <span class="word" style="--delay: 5">وضمان</span>
+        <span class="word gradient-text" style="--delay: 6">كامل</span>
+      </span>
+    </h1>
+
+    <p class="hero-subtitle">
+      منصة احترافية تجمع البائعين والمشترين في سوق آمن مع نظام ضمان (Escrow)،
+      <br/>
+      <span class="highlight-text">تقييم ذكي بالذكاء الاصطناعي</span>، ودعم كامل طوال رحلة الصفقة
+    </p>
+
+    <div class="hero-actions">
+      <button class="hero-btn hero-btn-primary" routerLink="/browse">
+        <span class="btn-text">تصفح المشاريع المتاحة</span>
+        <span class="btn-icon">←</span>
+        <span class="btn-glow"></span>
+        <span class="btn-shine"></span>
+      </button>
+      <button class="hero-btn hero-btn-secondary" routerLink="/sell">
+        <span class="btn-text">بيع مشروعك الآن</span>
+        <span class="btn-border"></span>
+      </button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat" *ngFor="let stat of heroStats; let i = index" [style.--delay]="i">
+        <span class="stat-number">
+          <span class="counter">{{ stat.value }}</span>
+        </span>
+        <span class="stat-label">{{ stat.label }}</span>
+        <span class="stat-glow"></span>
+      </div>
+    </div>
+
+    <!-- Trust Indicators -->
+    <div class="trust-bar">
+      <div class="trust-item">
+        <span class="trust-icon">🔒</span>
+        <span>دفع آمن 100%</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">⚡</span>
+        <span>صفقات سريعة</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">🏆</span>
+        <span>+350 صفقة ناجحة</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="scroll-indicator">
+    <div class="mouse">
+      <div class="wheel"></div>
+    </div>
+    <span>اسحب للأسفل</span>
+  </div>
+</section>
+
+<!-- Live Stats Ticker -->
+<section class="live-ticker">
+  <div class="ticker-wrapper">
+    <div class="ticker-content">
+      <div class="ticker-item success">
+        <span class="ticker-icon pulse">✅</span>
+        <span>تم بيع "متجر إلكتروني للأزياء" بـ $45,000</span>
+        <span class="ticker-time">منذ 2 ساعة</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-icon">🔥</span>
+        <span>مشروع جديد: "تطبيق توصيل" بسعر $28,000</span>
+        <span class="ticker-time">منذ 4 ساعات</span>
+      </div>
+      <div class="ticker-item success">
+        <span class="ticker-icon pulse">✅</span>
+        <span>تم بيع "موقع حجوزات فنادق" بـ $120,000</span>
+        <span class="ticker-time">منذ يوم</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-icon">📈</span>
+        <span>ارتفاع الطلب على مشاريع SaaS بنسبة 40%</span>
+        <span class="ticker-time">هذا الأسبوع</span>
+      </div>
+      <div class="ticker-item success">
+        <span class="ticker-icon pulse">✅</span>
+        <span>تم بيع "متجر إلكتروني للأزياء" بـ $45,000</span>
+        <span class="ticker-time">منذ 2 ساعة</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-icon">🔥</span>
+        <span>مشروع جديد: "تطبيق توصيل" بسعر $28,000</span>
+        <span class="ticker-time">منذ 4 ساعات</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Projects -->
+<section class="featured-projects">
+  <div class="container">
+    <div class="section-header-row">
+      <div>
+        <h2 class="section-title animate-title">مشاريع مميزة للبيع</h2>
+        <p class="section-subtitle">أفضل الفرص الاستثمارية المتاحة الآن</p>
+      </div>
+      <a routerLink="/browse" class="view-all-btn">
+        عرض الكل
+        <span class="arrow">←</span>
+      </a>
+    </div>
+
+    <div class="projects-grid">
+      <!-- Project 1 -->
+      <div class="project-card featured">
+        <div class="project-badge pulse">🔥 الأكثر طلباً</div>
+        <div class="project-image">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400" alt="متجر إلكتروني" />
+          <div class="image-overlay"></div>
+        </div>
+        <div class="project-content">
+          <div class="project-category">تجارة إلكترونية</div>
+          <h3 class="project-title">متجر ملابس نسائية</h3>
+          <p class="project-desc">متجر متكامل على Shopify مع 150+ منتج ونظام شحن آلي</p>
+
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="metric-label">الإيرادات الشهرية</span>
+              <span class="metric-value">$8,500</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">الربح الصافي</span>
+              <span class="metric-value">$3,200</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">عمر المشروع</span>
+              <span class="metric-value">3 سنوات</span>
+            </div>
+          </div>
+
+          <div class="project-footer">
+            <div class="project-price">
+              <span class="price-label">السعر المطلوب</span>
+              <span class="price-value">$85,000</span>
+            </div>
+            <div class="project-roi">
+              <span class="roi-badge">العائد: 26x شهري</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full btn-animated">
+            <span>عرض التفاصيل</span>
+            <span class="btn-arrow">←</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card">
+        <div class="project-image">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400" alt="SaaS" />
+          <div class="image-overlay"></div>
+        </div>
+        <div class="project-content">
+          <div class="project-category">SaaS</div>
+          <h3 class="project-title">نظام إدارة مطاعم</h3>
+          <p class="project-desc">منصة SaaS لإدارة المطاعم مع 45 عميل نشط</p>
+
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="metric-label">الاشتراكات الشهرية</span>
+              <span class="metric-value">$4,500</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">معدل النمو</span>
+              <span class="metric-value growth">+15%</span>
+            </div>
+          </div>
+
+          <div class="project-footer">
+            <div class="project-price">
+              <span class="price-label">السعر</span>
+              <span class="price-value">$120,000</span>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-full btn-animated">
+            <span>عرض التفاصيل</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card">
+        <div class="project-image">
+          <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400" alt="تطبيق" />
+          <div class="image-overlay"></div>
+        </div>
+        <div class="project-content">
+          <div class="project-category">تطبيقات موبايل</div>
+          <h3 class="project-title">تطبيق توصيل طعام</h3>
+          <p class="project-desc">تطبيق iOS و Android مع 5,000+ مستخدم نشط</p>
+
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="metric-label">المستخدمين النشطين</span>
+              <span class="metric-value">5,200</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">الإيرادات</span>
+              <span class="metric-value">$6,800</span>
+            </div>
+          </div>
+
+          <div class="project-footer">
+            <div class="project-price">
+              <span class="price-label">السعر</span>
+              <span class="price-value">$95,000</span>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-full btn-animated">
+            <span>عرض التفاصيل</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="project-card">
+        <div class="project-image">
+          <img src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400" alt="موقع محتوى" />
+          <div class="image-overlay"></div>
+        </div>
+        <div class="project-content">
+          <div class="project-category">مواقع محتوى</div>
+          <h3 class="project-title">مدونة تقنية</h3>
+          <p class="project-desc">موقع محتوى تقني مع 100,000 زائر شهرياً</p>
+
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="metric-label">الزوار الشهريين</span>
+              <span class="metric-value">100K</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">دخل الإعلانات</span>
+              <span class="metric-value">$2,100</span>
+            </div>
+          </div>
+
+          <div class="project-footer">
+            <div class="project-price">
+              <span class="price-label">السعر</span>
+              <span class="price-value">$45,000</span>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-full btn-animated">
+            <span>عرض التفاصيل</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="categories">
+  <div class="container">
+    <h2 class="section-title">تصفح حسب الفئة</h2>
+    <p class="section-subtitle">اختر نوع المشروع الذي تبحث عنه</p>
+
+    <div class="categories-grid">
+      <a routerLink="/browse" class="category-card" *ngFor="let cat of categories; let i = index" [style.--delay]="i">
+        <span class="category-icon">{{ cat.icon }}</span>
+        <h3>{{ cat.name }}</h3>
+        <span class="category-count">{{ cat.count }} مشروع</span>
+        <span class="category-glow"></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Sales -->
+<section class="recent-sales">
+  <div class="container">
+    <div class="section-header-row">
+      <div>
+        <h2 class="section-title">صفقات تمت مؤخراً</h2>
+        <p class="section-subtitle">إثبات نجاح منصتنا في إتمام الصفقات</p>
+      </div>
+    </div>
+
+    <div class="sales-grid">
+      <div class="sale-card" *ngFor="let sale of recentSales; let i = index" [style.--delay]="i">
+        <div class="sale-icon pulse">✅</div>
+        <div class="sale-info">
+          <h4>{{ sale.title }}</h4>
+          <p>{{ sale.category }}</p>
+        </div>
+        <div class="sale-price">{{ sale.price }}</div>
+        <div class="sale-date">{{ sale.time }}</div>
+      </div>
+    </div>
+
+    <div class="total-sales-banner">
+      <div class="banner-stat" *ngFor="let stat of salesStats; let i = index" [style.--delay]="i">
+        <span class="banner-value counter">{{ stat.value }}</span>
+        <span class="banner-label">{{ stat.label }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="container">
+    <h2 class="section-title">لماذا منصة المشاريع؟</h2>
+    <p class="section-subtitle">
+      نوفر لك بيئة آمنة ومحترفة لإتمام صفقاتك الرقمية بكل ثقة
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features; let i = index" [style.--delay]="i">
+        <div class="feature-icon-wrapper">
+          <span class="feature-icon">{{ feature.icon }}</span>
+          <span class="feature-glow"></span>
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">كيف تعمل المنصة؟</h2>
+    <p class="section-subtitle">خطوات بسيطة لإتمام صفقتك بأمان</p>
+
+    <div class="steps-container">
+      <div class="steps-line"></div>
+      <div class="steps-grid">
+        <div class="step" *ngFor="let step of steps; let i = index" [style.--delay]="i">
+          <div class="step-number">{{ i + 1 }}</div>
+          <h3 class="step-title">{{ step.title }}</h3>
+          <p class="step-description">{{ step.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="container">
+    <h2 class="section-title">ماذا يقول عملاؤنا؟</h2>
+    <p class="section-subtitle">تجارب حقيقية من مستخدمي المنصة</p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card" *ngFor="let testimonial of testimonials; let i = index" [style.--delay]="i">
+        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"{{ testimonial.text }}"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">{{ testimonial.initials }}</div>
+          <div>
+            <h4>{{ testimonial.name }}</h4>
+            <span>{{ testimonial.role }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+  <div class="cta-bg">
+    <div class="cta-shapes">
+      <div class="cta-shape cta-shape-1"></div>
+      <div class="cta-shape cta-shape-2"></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="cta-content">
+      <h2 class="cta-title">جاهز للبدء؟</h2>
+      <p class="cta-subtitle">
+        انضم لآلاف المستخدمين الذين أتموا صفقاتهم بنجاح على منصتنا
+      </p>
+      <div class="cta-actions">
+        <button class="cta-btn cta-btn-primary" routerLink="/register">
+          <span>إنشاء حساب مجاني</span>
+          <span class="btn-glow"></span>
+        </button>
+        <button class="cta-btn cta-btn-secondary" routerLink="/browse">
+          تصفح المشاريع
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

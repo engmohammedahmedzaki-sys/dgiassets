@@ -1,0 +1,377 @@
+<div class="sell-page">
+  <!-- Header -->
+  <div class="sell-header">
+    <div class="container">
+      <h1 class="page-title">بيع مشروعك</h1>
+      <p class="page-subtitle">أضف مشروعك للبيع واحصل على أفضل الع روض</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sell-layout">
+      <!-- Progress Sidebar -->
+      <aside class="progress-sidebar">
+        <div class="progress-header">
+          <h3>خطوات الإضافة</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+          </div>
+          <span class="progress-text">{{ currentStep }} من {{ totalSteps }}</span>
+        </div>
+
+        <div class="steps-list">
+          <div 
+            class="step-item"
+            [class.active]="currentStep === 1"
+            [class.completed]="currentStep > 1"
+            (click)="goToStep(1)"
+          >
+            <div class="step-number">1</div>
+            <div class="step-info">
+              <h4>المعلومات الأساسية</h4>
+              <p>العنوان والوصف</p>
+            </div>
+          </div>
+
+          <div 
+            class="step-item"
+            [class.active]="currentStep === 2"
+            [class.completed]="currentStep > 2"
+            (click)="goToStep(2)"
+          >
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h4>المقاييس المالية</h4>
+              <p>السعر والإيرادات</p>
+            </div>
+          </div>
+
+          <div 
+            class="step-item"
+            [class.active]="currentStep === 3"
+            [class.completed]="currentStep > 3"
+            (click)="goToStep(3)"
+          >
+            <div class="step-number">3</div>
+            <div class="step-info">
+              <h4>التفاصيل التقنية</h4>
+              <p>الموقع والتقنيات</p>
+            </div>
+          </div>
+
+          <div 
+            class="step-item"
+            [class.active]="currentStep === 4"
+            [class.completed]="currentStep > 4"
+            (click)="goToStep(4)"
+          >
+            <div class="step-number">4</div>
+            <div class="step-info">
+              <h4>الصور والوسائط</h4>
+              <p>صور المشروع</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="draft-actions">
+          <button class="btn-draft" (click)="saveDraft()">
+            <span>💾</span> حفظ كمسودة
+          </button>
+          <button class="btn-draft" (click)="loadDraft()">
+            <span>📂</span> تحميل مسودة
+          </button>
+        </div>
+      </aside>
+
+      <!-- Form Content -->
+      <div class="form-content">
+        <!-- Error Message -->
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <!-- Step 1: Basic Info -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <h2 class="step-title">المعلومات الأساسية</h2>
+          
+          <div class="form-group">
+            <label>عنوان المشروع *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="projectData.title"
+              placeholder="مثال: متجر إلكتروني للملابس النسائية"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>الفئة *</label>
+            <div class="categories-grid">
+              <label 
+                class="category-option" 
+                *ngFor="let cat of categories"
+                [class.selected]="projectData.category === cat.value"
+              >
+                <input 
+                  type="radio" 
+                  name="category" 
+                  [value]="cat.value"
+                  [(ngModel)]="projectData.category"
+                />
+                <div class="category-content">
+                  <span class="category-icon">{{ cat.icon }}</span>
+                  <span class="category-label">{{ cat.label }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>وصف مختصر *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="projectData.shortDescription"
+              placeholder="وصف قصير يظهر في البطاقة (100 حرف)"
+              maxlength="100"
+              class="form-input"
+            />
+            <span class="char-count">{{ projectData.shortDescription.length }}/100</span>
+          </div>
+
+          <div class="form-group">
+            <label>الوصف التفصيلي *</label>
+            <textarea 
+              [(ngModel)]="projectData.description"
+              placeholder="اكتب وصفاً تفصيلياً عن المشروع، مميزاته، وسبب نجاحه..."
+              rows="8"
+              class="form-textarea"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Step 2: Metrics -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <h2 class="step-title">المقاييس المالية</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>السعر المطلوب (بالدولار) *</label>
+              <input 
+                type="number" 
+                [(ngModel)]="projectData.price"
+                (input)="calculateAIValuation()"
+                placeholder="85000"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="projectData.isNegotiable"
+                />
+                <span>السعر قابل للتفاوض</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- AI Valuation Display -->
+          <div class="ai-valuation" *ngIf="aiValuation > 0">
+            <div class="ai-icon">🤖</div>
+            <div>
+              <h4>التقييم بالذكاء الاصطناعي</h4>
+              <p class="ai-value">${{ aiValuation | number }}</p>
+              <p class="ai-note">بناءً على الإيرادات الشهرية</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>الإيرادات الشهرية (بالدولار)</label>
+              <input 
+                type="number" 
+                [(ngModel)]="projectData.monthlyRevenue"
+                (input)="calculateAIValuation()"
+                placeholder="8500"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>الربح الصافي الشهري (بالدولار)</label>
+              <input 
+                type="number" 
+                [(ngModel)]="projectData.monthlyProfit"
+                placeholder="3200"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>الزوار الشهريين</label>
+              <input 
+                type="number" 
+                [(ngModel)]="projectData.monthlyVisitors"
+                placeholder="45000"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>المستخدمين النشطين</label>
+              <input 
+                type="number" 
+                [(ngModel)]="projectData.activeUsers"
+                placeholder="1200"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>عمر المشروع (بالأشهر)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="projectData.ageInMonths"
+              placeholder="36"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <!-- Step 3: Details -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <h2 class="step-title">التفاصيل التقنية</h2>
+
+          <div class="form-group">
+            <label>رابط الموقع</label>
+            <input 
+              type="url" 
+              [(ngModel)]="projectData.website"
+              placeholder="https://example.com"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>رابط Demo (إن وجد)</label>
+            <input 
+              type="url" 
+              [(ngModel)]="projectData.demoUrl"
+              placeholder="https://demo.example.com"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>التقنيات المستخدمة</label>
+            <div class="tech-stack-input">
+              <input 
+                type="text" 
+                [(ngModel)]="techStackInput"
+                (keyup.enter)="addTechStack()"
+                placeholder="مثال: React, Node.js, PostgreSQL"
+                class="form-input"
+              />
+              <button type="button" class="btn-add" (click)="addTechStack()">
+                إضافة
+              </button>
+            </div>
+            <div class="tech-tags" *ngIf="projectData.techStack.length > 0">
+              <span 
+                class="tech-tag" 
+                *ngFor="let tech of projectData.techStack; let i = index"
+              >
+                {{ tech }}
+                <button type="button" class="remove-tag" (click)="removeTechStack(i)">×</button>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>سبب البيع</label>
+            <textarea 
+              [(ngModel)]="projectData.reasonForSelling"
+              placeholder="اذكر سبب بيعك للمشروع بوضوح..."
+              rows="4"
+              class="form-textarea"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>أبرز المميزات</label>
+            <textarea 
+              [(ngModel)]="projectData.highlights"
+              placeholder="اذكر أهم المميزات التي تجعل مشروعك فريداً..."
+              rows="4"
+              class="form-textarea"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Step 4: Media -->
+        <div class="form-step" *ngIf="currentStep === 4">
+          <h2 class="step-title">الصور والوسائط</h2>
+
+          <div class="upload-section">
+            <div class="upload-placeholder">
+              <span class="upload-icon">📸</span>
+              <h3>قريباً: رفع الصور</h3>
+              <p>سيتم إضافة خاصية رفع الصور قريباً</p>
+              <p class="upload-note">يمكنك إضافة روابط الصور مؤقتاً:</p>
+            </div>
+
+            <div class="form-group">
+              <label>الصورة الرئيسية (رابط URL)</label>
+              <input 
+                type="url" 
+                [(ngModel)]="projectData.mainImage"
+                placeholder="https://example.com/image.jpg"
+                class="form-input"
+              />
+            </div>
+
+            <div class="image-preview" *ngIf="projectData.mainImage">
+              <img [src]="projectData.mainImage" alt="Preview" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            *ngIf="currentStep > 1"
+            (click)="prevStep()"
+          >
+            ← السابق
+          </button>
+
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            *ngIf="currentStep < totalSteps"
+            (click)="nextStep()"
+          >
+            التالي →
+          </button>
+
+          <button 
+            type="button" 
+            class="btn btn-success btn-lg"
+            *ngIf="currentStep === totalSteps"
+            (click)="onSubmit()"
+            [disabled]="loading"
+          >
+            <span *ngIf="!loading">✓ نشر المشروع</span>
+            <span *ngIf="loading">جاري النشر...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

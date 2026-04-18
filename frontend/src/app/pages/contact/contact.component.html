@@ -1,0 +1,107 @@
+<div class="contact-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="page-title">اتصل بنا</h1>
+      <p class="page-subtitle">نحن هنا للإجابة على استفساراتك</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="contact-layout">
+      <!-- Contact Info -->
+      <aside class="contact-info">
+        <div class="info-card">
+          <div class="info-icon">📧</div>
+          <h3>البريد الإلكتروني</h3>
+          <p>support&#64;marketplace.com</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">📱</div>
+          <h3>الهاتف</h3>
+          <p dir="ltr">+966 50 123 4567</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">⏰</div>
+          <h3>أوقات العمل</h3>
+          <p>الأحد - الخميس</p>
+          <p>9:00 ص - 6:00 م</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">📍</div>
+          <h3>الموقع</h3>
+          <p>الرياض، المملكة العربية السعودية</p>
+        </div>
+      </aside>
+
+      <!-- Contact Form -->
+      <div class="contact-form-container">
+        <h2>أرسل لنا رسالة</h2>
+        
+        <div class="success-message" *ngIf="success">
+          ✓ تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <form class="contact-form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>الاسم الكامل *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="contactData.name"
+              name="name"
+              placeholder="أدخل اسمك الكامل"
+              class="form-input"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>البريد الإلكتروني *</label>
+            <input 
+              type="email" 
+              [(ngModel)]="contactData.email"
+              name="email"
+              placeholder="example@email.com"
+              class="form-input"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>الموضوع</label>
+            <input 
+              type="text" 
+              [(ngModel)]="contactData.subject"
+              name="subject"
+              placeholder="موضوع الرسالة"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>الرسالة *</label>
+            <textarea 
+              [(ngModel)]="contactData.message"
+              name="message"
+              placeholder="اكتب رسالتك هنا..."
+              rows="6"
+              class="form-textarea"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg">
+            📤 إرسال الرسالة
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

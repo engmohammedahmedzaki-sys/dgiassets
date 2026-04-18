@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: marketplace_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-marketplace}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Backend Service (NestJS) - For development, we might run it locally, but this is for production/dockerized dev
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DATABASE_HOST: db
+  #     DATABASE_PORT: 5432
+  #     DATABASE_USER: ${DB_USER:-postgres}
+  #     DATABASE_PASSWORD: ${DB_PASSWORD:-postgres}
+  #     DATABASE_NAME: ${DB_NAME:-marketplace}
+
+  # Frontend Service (Angular) - Usually served via Nginx in prod
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "80:80"
+
+volumes:
+  postgres_data:

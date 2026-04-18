@@ -1,0 +1,79 @@
+<!-- Header -->
+<header class="header" *ngIf="showLayout">
+  <div class="header-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <div class="logo-icon">م</div>
+      <span class="logo-text">منصة المشاريع</span>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="nav" [class.mobile-open]="mobileMenuOpen">
+      <ul class="nav-links" [class.show]="mobileMenuOpen">
+        <li><a routerLink="/" class="nav-link">الرئيسية</a></li>
+        <li><a routerLink="/browse" class="nav-link">تصفح المشاريع</a></li>
+        <li><a routerLink="/sell" class="nav-link">بيع مشروعك</a></li>
+        <li><a href="#about" class="nav-link">من نحن</a></li>
+        <li><a href="#contact" class="nav-link">تواصل معنا</a></li>
+      </ul>
+
+      <div class="nav-actions" [class.show]="mobileMenuOpen">
+        <button class="btn btn-ghost" routerLink="/login">تسجيل الدخول</button>
+        <button class="btn btn-primary" routerLink="/register">إنشاء حساب</button>
+      </div>
+
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+        {{ mobileMenuOpen ? '✕' : '☰' }}
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- Router Outlet -->
+<router-outlet></router-outlet>
+
+<!-- Footer -->
+<footer class="footer" *ngIf="showLayout">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>منصة المشاريع</h4>
+        <p>منصة موثوقة لبيع وشراء المشاريع الرقمية بأمان وضمان كامل</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a routerLink="/browse">تصفح المشاريع</a></li>
+          <li><a routerLink="/sell">بيع مشروعك</a></li>
+          <li><a href="#about">من نحن</a></li>
+          <li><a href="#contact">تواصل معنا</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>الدعم</h4>
+        <ul>
+          <li><a href="#faq">الأسئلة الشائعة</a></li>
+          <li><a href="#help">مركز المساعدة</a></li>
+          <li><a href="#terms">الشروط والأحكام</a></li>
+          <li><a href="#privacy">سياسة الخصوصية</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li>📧 info&#64;marketplace.com</li>
+          <li>📱 +966 50 123 4567</li>
+          <li>📍 الرياض، المملكة العربية السعودية</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2024 منصة المشاريع. جميع الحقوق محفوظة.</p>
+    </div>
+  </div>
+</footer>
+

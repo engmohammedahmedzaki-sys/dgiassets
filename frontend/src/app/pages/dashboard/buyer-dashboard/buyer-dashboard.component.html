@@ -1,0 +1,131 @@
+<div class="dashboard-layout">
+  <app-sidebar [menuItems]="menuItems"></app-sidebar>
+
+  <main class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1>لوحة تحكم المشتري</h1>
+        <p>مرحباً بك في لوحة التحكم</p>
+      </div>
+      <button class="btn btn-primary">
+        <span>🔍</span>
+        تصفح المشاريع
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          👁️
+        </div>
+        <div class="stat-details">
+          <h3>{{ stats.watchlist }}</h3>
+          <p>المشاريع المتابعة</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          💼
+        </div>
+        <div class="stat-details">
+          <h3>{{ stats.offers }}</h3>
+          <p>العروض المرسلة</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          ✅
+        </div>
+        <div class="stat-details">
+          <h3>{{ stats.purchased }}</h3>
+          <p>المشاريع المشتراة</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          💰
+        </div>
+        <div class="stat-details">
+          <h3>${{ stats.totalSpent }}</h3>
+          <p>إجمالي المصروفات</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="section">
+      <div class="section-header">
+        <h2>النشاط الأخير</h2>
+        <a href="#" class="view-all">عرض الكل</a>
+      </div>
+
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivity">
+          <div class="activity-icon" [style.background]="activity.color">
+            {{ activity.icon }}
+          </div>
+          <div class="activity-details">
+            <h4>{{ activity.title }}</h4>
+            <p>{{ activity.description }}</p>
+            <span class="activity-time">{{ activity.time }}</span>
+          </div>
+          <span class="activity-badge" [class]="activity.status">
+            {{ getStatusText(activity.status) }}
+          </span>
+        </div>
+
+        <div class="empty-state" *ngIf="recentActivity.length === 0">
+          <div class="empty-icon">📭</div>
+          <h3>لا يوجد نشاط حتى الآن</h3>
+          <p>ابدأ بتصفح المشاريع وإرسال العروض</p>
+          <button class="btn btn-primary">تصفح المشاريع</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watchlist -->
+    <div class="section">
+      <div class="section-header">
+        <h2>المشاريع المتابعة (Watchlist)</h2>
+        <a href="#" class="view-all">عرض الكل</a>
+      </div>
+
+      <div class="projects-grid">
+        <div class="project-card" *ngFor="let project of watchlist">
+          <div class="project-image">
+            <img [src]="project.image" [alt]="project.title" />
+            <span class="project-category">{{ project.category }}</span>
+          </div>
+          <div class="project-info">
+            <h3>{{ project.title }}</h3>
+            <p class="project-description">{{ project.description }}</p>
+
+            <div class="project-stats">
+              <span>📊 {{ project.revenue }}/شهر</span>
+              <span>👥 {{ project.users }} مستخدم</span>
+            </div>
+
+            <div class="project-footer">
+              <div class="project-price">
+                <span class="price-label">السعر المطلوب</span>
+                <span class="price">${{ project.price }}</span>
+              </div>
+              <button class="btn btn-primary btn-sm">تقديم عرض</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="watchlist.length === 0">
+          <div class="empty-icon">⭐</div>
+          <h3>لا توجد مشاريع متابعة</h3>
+          <p>أضف المشاريع التي تهتم بها إلى القائمة</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
