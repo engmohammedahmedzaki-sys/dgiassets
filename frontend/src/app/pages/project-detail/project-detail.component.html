@@ -1,0 +1,150 @@
+<div class="project-detail-container" *ngIf="!loading && project">
+  <!-- Header Breadcrumbs & Actions -->
+  <div class="page-header">
+    <div class="breadcrumbs">
+      <a routerLink="/browse">تصفح المشاريع</a>
+      <span class="separator">/</span>
+      <span class="current">{{ project.title }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-watch glass-btn">⭐ متابعة المشروع</button>
+      <button class="btn-share glass-btn">🔗 مشاركة</button>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Title & Badges -->
+      <div class="project-title-section glass-card">
+        <div class="title-top">
+          <span class="category-tag">{{ project.category }}</span>
+          <span class="verified-badge" *ngIf="project.isFeatured">⭐ متميز</span>
+        </div>
+        <h1>{{ project.title }}</h1>
+        <p class="short-desc">{{ project.shortDescription }}</p>
+        
+        <div class="meta-info">
+          <span>📅 تم النشر: {{ project.createdAt | date:'mediumDate' }}</span>
+          <span>👁️ المشاهدات: {{ project.viewCount }}</span>
+          <span>💼 العروض: {{ project.offerCount }}</span>
+        </div>
+      </div>
+
+      <!-- Gallery -->
+      <div class="gallery-section glass-card">
+        <div class="main-image">
+          <img [src]="activeImage" [alt]="project.title">
+        </div>
+        <div class="thumbnails" *ngIf="project.images && project.images.length > 0">
+          <div 
+            class="thumb" 
+            *ngFor="let img of project.images" 
+            [class.active]="activeImage === img"
+            (click)="setActiveImage(img)"
+          >
+            <img [src]="img" alt="Thumbnail">
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Summary Cards -->
+      <div class="financial-cards">
+        <div class="stat-card glass-card">
+          <span class="label">السعر المطلوب</span>
+          <span class="value highlight">{{ project.price | currency:'USD':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="stat-card glass-card">
+          <span class="label">الربح الشهري</span>
+          <span class="value">{{ project.monthlyProfit | currency:'USD':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="stat-card glass-card">
+          <span class="label">المضاعف (Multiple)</span>
+          <span class="value">{{ getMultiple() }}x</span>
+        </div>
+        <div class="stat-card glass-card">
+          <span class="label">عمر المشروع</span>
+          <span class="value">{{ project.ageInMonths }} شهر</span>
+        </div>
+      </div>
+
+      <!-- Full Description -->
+      <div class="content-section glass-card">
+        <h2>وصف المشروع</h2>
+        <div class="description-text" [innerHTML]="project.description"></div>
+      </div>
+
+      <!-- Tech Stack & Assets -->
+      <div class="content-section glass-card" *ngIf="project.techStack && project.techStack.length > 0">
+        <h2>البنية التقنية (Tech Stack)</h2>
+        <div class="tech-tags">
+          <span class="tech-tag" *ngFor="let tech of project.techStack">{{ tech }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Quick Actions -->
+      <div class="action-card glass-card">
+        <h3>مهتم بهذا المشروع؟</h3>
+        <p>تواصل مع البائع مباشرة أو قدم عرضك الآن.</p>
+        <button class="btn-primary-action">تقديم عرض (Make Offer)</button>
+        <button class="btn-secondary-action">مراسلة البائع</button>
+        <div class="nda-note" *ngIf="project.requiresNda">
+          🔒 هذا المشروع يتطلب توقيع اتفاقية عدم إفصاح (NDA) لرؤية البيانات الحساسة.
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metrics-card glass-card">
+        <h3>أهم المؤشرات</h3>
+        <div class="metric-row">
+          <span class="m-label">نوع الربح</span>
+          <span class="m-value">{{ project.monetization || 'غير محدد' }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="m-label">هامش الربح</span>
+          <span class="m-value">{{ project.profitMargin }}%</span>
+        </div>
+        <div class="metric-row">
+          <span class="m-label">الموقع الجغرافي</span>
+          <span class="m-value">{{ project.location || 'عالمي' }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="m-label">الزوار شهرياً</span>
+          <span class="m-value">{{ project.monthlyVisitors | number }}</span>
+        </div>
+      </div>
+
+      <!-- Seller Profile -->
+      <div class="seller-card glass-card">
+        <h3>عن البائع</h3>
+        <div class="seller-info">
+          <div class="seller-avatar">{{ project.owner.fullName.substring(0,1) }}</div>
+          <div class="seller-details">
+            <span class="name">{{ project.owner.fullName }}</span>
+            <span class="verified-status">✅ هويته موثقة</span>
+          </div>
+        </div>
+        <button class="btn-view-profile">عرض ملف البائع</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>جاري تحميل تفاصيل المشروع...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error && !loading">
+  <div class="error-card glass-card">
+    <span class="error-icon">⚠️</span>
+    <h3>عذراً!</h3>
+    <p>{{ error }}</p>
+    <button routerLink="/browse" class="glass-btn">العودة للتصفح</button>
+  </div>
+</div>

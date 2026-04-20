@@ -4,18 +4,21 @@ import { LoginComponent } from './pages/auth/login/login.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { BrowseComponent } from './pages/browse/browse.component';
 import { SellComponent } from './pages/sell/sell.component';
-import { BuyerDashboardComponent } from './pages/dashboard/buyer-dashboard/buyer-dashboard.component';
-import { SellerDashboardComponent } from './pages/dashboard/seller-dashboard/seller-dashboard.component';
-import { AdminDashboardComponent } from './pages/dashboard/admin-dashboard/admin-dashboard.component';
+import { DashboardComponent } from './pages/dashboard/main-dashboard/dashboard.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { AboutComponent } from './pages/about/about.component';
+import { ProjectDetailComponent } from './pages/project-detail/project-detail.component';
 import { authGuard } from './guards/auth.guard';
+import { DealRoomComponent } from './pages/deal-room/deal-room.component';
+import { PaymentCallbackComponent } from './pages/payment/payment-callback.component';
+import { GoogleCallbackComponent } from './pages/auth/google-callback/google-callback.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'browse', component: BrowseComponent },
+  { path: 'projects/:id', component: ProjectDetailComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'about', component: AboutComponent },
   {
@@ -24,19 +27,23 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'dashboard/buyer',
-    component: BuyerDashboardComponent,
+    path: 'dashboard',
+    component: DashboardComponent,
     canActivate: [authGuard],
   },
   {
-    path: 'dashboard/seller',
-    component: SellerDashboardComponent,
+    path: 'deals/:id',
+    component: DealRoomComponent,
     canActivate: [authGuard],
   },
   {
-    path: 'dashboard/admin',
-    component: AdminDashboardComponent,
+    path: 'payment/callback',
+    component: PaymentCallbackComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: 'auth/google-callback',
+    component: GoogleCallbackComponent,
   },
   { path: '**', redirectTo: '' },
 ];

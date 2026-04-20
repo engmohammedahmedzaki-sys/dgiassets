@@ -23,6 +23,14 @@ export interface Project {
   viewCount: number;
   offerCount: number;
   isFeatured: boolean;
+  
+  // New Marketplace Fields
+  location?: string;
+  monetization?: string;
+  profitMargin?: number;
+  requiresNda?: boolean;
+  allowRental?: boolean;
+  
   owner: {
     id: string;
     fullName: string;

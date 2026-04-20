@@ -26,10 +26,14 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Check if user is logged in
-    const token = this.getToken();
-    if (token) {
-      // TODO: Validate token and load user
+    // Restore user from saved data on page load
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      try {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('currentUser');
+      }
     }
   }
 
@@ -38,6 +42,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveToken(response.token);
+          this.saveUser(response.user);
           this.currentUserSubject.next(response.user);
         })
       );
@@ -48,6 +53,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveToken(response.token);
+          this.saveUser(response.user);
           this.currentUserSubject.next(response.user);
         })
       );
@@ -55,11 +61,30 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
   private saveToken(token: string) {
     localStorage.setItem('token', token);
+  }
+
+  private saveUser(user: User) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
+  loginWithToken(token: string): Observable<void> {
+    this.saveToken(token);
+    return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
+      tap((user) => {
+        this.saveUser(user);
+        this.currentUserSubject.next(user);
+      }),
+    ) as any;
+  }
+
+  loginWithGoogle(): void {
+    window.location.href = `${this.apiUrl}/google`;
   }
 
   getToken(): string | null {

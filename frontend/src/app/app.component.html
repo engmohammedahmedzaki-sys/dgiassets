@@ -3,8 +3,9 @@
   <div class="header-container">
     <!-- Logo -->
     <a routerLink="/" class="logo">
-      <div class="logo-icon">م</div>
-      <span class="logo-text">منصة المشاريع</span>
+      <img *ngIf="settings?.logoUrl" [src]="settings?.logoUrl" class="logo-img" [alt]="settings?.siteName">
+      <div *ngIf="!settings?.logoUrl" class="logo-icon">م</div>
+      <span class="logo-text" *ngIf="!settings?.logoUrl">{{ settings?.siteName || 'منصة المشاريع' }}</span>
     </a>
 
     <!-- Navigation -->
@@ -18,8 +19,17 @@
       </ul>
 
       <div class="nav-actions" [class.show]="mobileMenuOpen">
-        <button class="btn btn-ghost" routerLink="/login">تسجيل الدخول</button>
-        <button class="btn btn-primary" routerLink="/register">إنشاء حساب</button>
+        <ng-container *ngIf="authService.currentUser$ | async as user; else guestLinks">
+          <span class="user-greeting">مرحباً، <strong>{{ user.fullName }}</strong></span>
+          <button class="btn btn-secondary" routerLink="/dashboard">
+            دخول الداشبورد
+          </button>
+          <button class="btn btn-ghost" (click)="authService.logout(); router.navigate(['/login'])">خروج</button>
+        </ng-container>
+        <ng-template #guestLinks>
+          <button class="btn btn-ghost" routerLink="/login">تسجيل الدخول</button>
+          <button class="btn btn-primary" routerLink="/register">إنشاء حساب</button>
+        </ng-template>
       </div>
 
       <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
@@ -37,8 +47,8 @@
   <div class="container">
     <div class="footer-content">
       <div class="footer-section">
-        <h4>منصة المشاريع</h4>
-        <p>منصة موثوقة لبيع وشراء المشاريع الرقمية بأمان وضمان كامل</p>
+        <h4>{{ settings?.siteName || 'منصة المشاريع' }}</h4>
+        <p>{{ settings?.siteDescription || 'منصة موثوقة لبيع وشراء المشاريع الرقمية بأمان وضمان كامل' }}</p>
       </div>
 
       <div class="footer-section">
@@ -72,7 +82,7 @@
     </div>
 
     <div class="footer-bottom">
-      <p>&copy; 2024 منصة المشاريع. جميع الحقوق محفوظة.</p>
+      <p>{{ settings?.footerText || '&copy; 2024 منصة المشاريع. جميع الحقوق محفوظة.' }}</p>
     </div>
   </div>
 </footer>

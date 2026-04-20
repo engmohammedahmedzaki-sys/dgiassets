@@ -22,4 +22,28 @@ export class UsersService {
   async findOne(id: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { id } });
   }
+
+  async update(id: string, userData: Partial<User>): Promise<User | null> {
+    await this.usersRepository.update(id, userData);
+    return this.findOne(id);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find({
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.usersRepository.delete(id);
+  }
+
+  async toggleStatus(id: string): Promise<User | null> {
+    const user = await this.findOne(id);
+    if (user) {
+      user.isActive = !user.isActive;
+      return this.usersRepository.save(user);
+    }
+    return null;
+  }
 }

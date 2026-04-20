@@ -11,8 +11,17 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.production
 backend/.env
+backend/.env.prod
+backend/.env.production
 frontend/.env
+
+# Zips, backups, SQL dumps
+*.zip
+*.sql
+!backend/sample-*.sql
 
 # Build output
 backend/dist/
@@ -28,6 +37,7 @@ postgres_data/
 # Uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
+images/
 
 # IDEs and editors
 .idea/

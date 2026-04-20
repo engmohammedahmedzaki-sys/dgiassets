@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
@@ -13,12 +13,14 @@ interface MenuItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnInit {
   @Input() menuItems: MenuItem[] = [];
+  @Input() activeTab: string = '';
+  @Output() tabSelected = new EventEmitter<string>();
   isCollapsed = false;
   currentUser: any = null;
 
@@ -35,6 +37,11 @@ export class SidebarComponent implements OnInit {
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  onItemClick(item: MenuItem, event: Event) {
+    event.preventDefault();
+    this.tabSelected.emit(item.route);
   }
 
   getInitials(): string {

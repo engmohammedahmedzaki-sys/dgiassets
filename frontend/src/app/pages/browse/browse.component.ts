@@ -34,18 +34,25 @@ export class BrowseComponent implements OnInit {
 
   categories = [
     { value: '', label: 'الكل', icon: '📂' },
-    { value: 'ecommerce', label: 'تجارة إلكترونية', icon: '🛒' },
-    { value: 'saas', label: 'SaaS', icon: '💻' },
-    { value: 'mobile_app', label: 'تطبيقات', icon: '📱' },
-    { value: 'content_site', label: 'مواقع محتوى', icon: '📝' },
-    { value: 'education', label: 'تعليم', icon: '🎓' },
-    { value: 'games', label: 'ألعاب', icon: '🎮' },
+    { value: 'domains', label: 'دومينات', icon: '🌐' },
+    { value: 'websites', label: 'مواقع إلكترونية', icon: '🖥️' },
+    { value: 'ecommerce', label: 'متاجر إلكترونية', icon: '🛒' },
+    { value: 'mobile_apps', label: 'تطبيقات موبايل', icon: '📱' },
+    { value: 'saas', label: 'برمجيات SaaS', icon: '☁️' },
+    { value: 'digital_accounts', label: 'حسابات رقمية', icon: '📲' },
+    { value: 'digital_content', label: 'محتوى رقمي', icon: '📚' },
+    { value: 'branding', label: 'علامات تجارية', icon: '🏷️' },
+    { value: 'databases', label: 'قواعد بيانات', icon: '🗄️' },
+    { value: 'games', label: 'ألعاب وأصول الألعاب', icon: '🎮' },
+    { value: 'intellectual_property', label: 'ملكية فكرية', icon: '💡' },
+    { value: 'services', label: 'خدمات رقمية', icon: '🔧' },
+    { value: 'other', label: 'أخرى', icon: '📦' }
   ];
 
   pricePresets = [
-    { label: 'أقل من $50K', min: 0, max: 50000 },
-    { label: '$50K - $100K', min: 50000, max: 100000 },
-    { label: '$100K - $200K', min: 100000, max: 200000 },
+    { label: 'أقل من $5K', min: 0, max: 5000 },
+    { label: '$5K - $50K', min: 5000, max: 50000 },
+    { label: '$50K - $200K', min: 50000, max: 200000 },
     { label: 'أكثر من $200K', min: 200000, max: undefined },
   ];
 
@@ -81,7 +88,6 @@ export class BrowseComponent implements OnInit {
   }
 
   onSortChange() {
-    // TODO: Implement sorting
     this.loadProjects();
   }
 
@@ -139,18 +145,7 @@ export class BrowseComponent implements OnInit {
   }
 
   openProject(id: string) {
-    this.projectsService.getProject(id).subscribe({
-      next: (project) => {
-        this.selectedProject = project;
-      },
-      error: (error) => {
-        console.error('Error loading project:', error);
-      }
-    });
-  }
-
-  closeModal() {
-    this.selectedProject = null;
+    this.router.navigate(['/projects', id]);
   }
 
   getCategoryLabel(category: string): string {

@@ -10,12 +10,18 @@ export enum ProjectStatus {
 }
 
 export enum ProjectCategory {
+  DOMAINS = 'domains',
+  WEBSITES = 'websites',
   ECOMMERCE = 'ecommerce',
+  MOBILE_APPS = 'mobile_apps',
   SAAS = 'saas',
-  MOBILE_APP = 'mobile_app',
-  CONTENT_SITE = 'content_site',
-  EDUCATION = 'education',
+  DIGITAL_ACCOUNTS = 'digital_accounts',
+  DIGITAL_CONTENT = 'digital_content',
+  BRANDING = 'branding',
+  DATABASES = 'databases',
   GAMES = 'games',
+  INTELLECTUAL_PROPERTY = 'intellectual_property',
+  SERVICES = 'services',
   OTHER = 'other',
 }
 
@@ -72,6 +78,21 @@ export class Project {
 
   @Column('int', { nullable: true })
   ageInMonths: number;
+
+  @Column({ nullable: true })
+  location: string;
+
+  @Column({ nullable: true })
+  monetizationType: string; // e.g., Subscriptions, Ads, Affiliate
+
+  @Column('decimal', { precision: 5, scale: 2, nullable: true })
+  profitMargin: number;
+
+  @Column({ default: false })
+  requiresNDA: boolean;
+
+  @Column({ default: false })
+  isAvailableForRental: boolean;
 
   // Tech Stack
   @Column('simple-array', { nullable: true })

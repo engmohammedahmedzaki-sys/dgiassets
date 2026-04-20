@@ -1,0 +1,134 @@
+<div class="deal-room" dir="rtl">
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>جاري تحميل الصفقة...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="alert alert-error">{{ error }}</div>
+  <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+
+  <ng-container *ngIf="deal && !loading">
+
+    <!-- Header -->
+    <div class="deal-header">
+      <div class="deal-title">
+        <h1>غرفة الصفقة</h1>
+        <span class="deal-id">{{ deal.id.slice(0, 8) }}...</span>
+      </div>
+      <span class="status-badge" [ngClass]="'status-' + deal.status">
+        {{ getStatusLabel(deal.status) }}
+      </span>
+    </div>
+
+    <!-- Project Info -->
+    <div class="deal-project-card">
+      <img *ngIf="deal.project?.mainImage" [src]="deal.project.mainImage" alt="" class="project-thumb" />
+      <div class="project-info">
+        <h2>{{ deal.project?.title }}</h2>
+        <div class="deal-amount">
+          <span class="label">المبلغ النهائي</span>
+          <span class="amount">{{ deal.finalAmount | number }} ريال</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper" *ngIf="deal.status !== 'disputed' && deal.status !== 'cancelled' && deal.status !== 'refunded'">
+      <div
+        *ngFor="let step of steps; let i = index"
+        class="step"
+        [ngClass]="{
+          'step-done': currentStep > i,
+          'step-active': currentStep === i,
+          'step-future': currentStep < i
+        }"
+      >
+        <div class="step-circle">{{ currentStep > i ? '✓' : step.icon }}</div>
+        <div class="step-label">{{ step.label }}</div>
+      </div>
+    </div>
+
+    <!-- Disputed Banner -->
+    <div *ngIf="deal.status === 'disputed'" class="disputed-banner">
+      <span>⚠️</span>
+      <div>
+        <strong>هذه الصفقة تحت النزاع</strong>
+        <p>{{ deal.disputeReason }}</p>
+        <small>سيتواصل معك فريق الدعم قريباً لحل المشكلة</small>
+      </div>
+    </div>
+
+    <!-- Completed Banner -->
+    <div *ngIf="deal.status === 'completed'" class="completed-banner">
+      🎉 تم إتمام الصفقة بنجاح!
+    </div>
+
+    <!-- Actions -->
+    <div class="deal-actions" *ngIf="deal.status !== 'completed' && deal.status !== 'disputed'">
+
+      <!-- Buyer: Pay -->
+      <div *ngIf="isBuyer && deal.status === 'payment_pending'" class="action-card">
+        <h3>💳 في انتظار دفعك</h3>
+        <p>يرجى إتمام الدفع لبدء الصفقة</p>
+        <button class="btn btn-primary" (click)="goToPayment()">ادفع الآن</button>
+      </div>
+
+      <!-- Seller: Start Transfer -->
+      <div *ngIf="isSeller && deal.status === 'paid'" class="action-card">
+        <h3>📦 الدفع مكتمل - ابدأ نقل الملكية</h3>
+        <p>قم برفع الأصول وتسليمها للمشتري ثم اضغط "بدء النقل"</p>
+        <button class="btn btn-secondary" (click)="showTransferForm = !showTransferForm">
+          {{ showTransferForm ? 'إلغاء' : 'بدء نقل الملكية' }}
+        </button>
+        <div *ngIf="showTransferForm" class="form-inline">
+          <textarea
+            [(ngModel)]="transferNotes"
+            placeholder="ملاحظات النقل (روابط، تعليمات، ...)"
+            rows="3"
+          ></textarea>
+          <button class="btn btn-primary" [disabled]="actionLoading" (click)="startTransfer()">
+            {{ actionLoading ? 'جاري...' : 'تأكيد بدء النقل' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Transfer Notes Display -->
+      <div *ngIf="deal.status === 'transfer_started' && deal.transferNotes" class="info-card">
+        <h3>📋 ملاحظات نقل الملكية</h3>
+        <p>{{ deal.transferNotes }}</p>
+        <small *ngIf="deal.inspectionDeadline">
+          موعد انتهاء الفحص: {{ deal.inspectionDeadline | date:'dd/MM/yyyy' }}
+        </small>
+      </div>
+
+      <!-- Buyer: Complete or Dispute -->
+      <div *ngIf="isBuyer && (deal.status === 'transfer_started' || deal.status === 'inspection')" class="action-card">
+        <h3>🔍 فحص وتسلّم</h3>
+        <p>تحقق من استلام الأصول بالكامل ثم أتمّ الصفقة، أو افتح نزاعاً في حال وجود مشكلة</p>
+        <div class="action-buttons">
+          <button class="btn btn-success" [disabled]="actionLoading" (click)="completeDeal()">
+            {{ actionLoading ? 'جاري...' : '✅ تسلّمت وأتمّ الصفقة' }}
+          </button>
+          <button class="btn btn-danger" (click)="showDisputeForm = !showDisputeForm">
+            ⚠️ فتح نزاع
+          </button>
+        </div>
+        <div *ngIf="showDisputeForm" class="form-inline">
+          <textarea
+            [(ngModel)]="disputeReason"
+            placeholder="اشرح سبب النزاع بالتفصيل..."
+            rows="3"
+          ></textarea>
+          <button class="btn btn-danger" [disabled]="actionLoading || !disputeReason.trim()" (click)="submitDispute()">
+            {{ actionLoading ? 'جاري...' : 'إرسال النزاع' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

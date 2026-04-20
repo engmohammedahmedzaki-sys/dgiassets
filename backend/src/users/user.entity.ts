@@ -36,8 +36,23 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @Column({ default: false })
-  isKycVerified: boolean;
+  isEmailVerified: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  emailVerificationCode: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  googleId: string | null;
+
+  @Column({
+    type: 'text',
+    default: 'unverified'
+  })
+  kycStatus: 'unverified' | 'pending' | 'verified';
 
   @CreateDateColumn()
   createdAt: Date;

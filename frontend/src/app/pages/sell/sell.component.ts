@@ -32,6 +32,9 @@ export class SellComponent {
     monthlyVisitors: 0,
     activeUsers: 0,
     ageInMonths: 0,
+    location: '',
+    monetizationType: '',
+    profitMargin: 0,
     
     // Step 3: Details
     website: '',
@@ -39,6 +42,8 @@ export class SellComponent {
     techStack: [] as string[],
     reasonForSelling: '',
     highlights: '',
+    requiresNDA: false,
+    isAvailableForRental: false,
     
     // Step 4: Media
     mainImage: '',
@@ -48,13 +53,29 @@ export class SellComponent {
   techStackInput = '';
   
   categories = [
-    { value: 'ecommerce', label: 'تجارة إلكترونية', icon: '🛒' },
-    { value: 'saas', label: 'SaaS', icon: '💻' },
-    { value: 'mobile_app', label: 'تطبيقات موبايل', icon: '📱' },
-    { value: 'content_site', label: 'مواقع محتوى', icon: '📝' },
-    { value: 'education', label: 'تعليم أونلاين', icon: '🎓' },
-    { value: 'games', label: 'ألعاب', icon: '🎮' },
+    { value: 'domains', label: 'دومينات', icon: '🌐' },
+    { value: 'websites', label: 'مواقع إلكترونية', icon: '🖥️' },
+    { value: 'ecommerce', label: 'متاجر إلكترونية', icon: '🛒' },
+    { value: 'mobile_apps', label: 'تطبيقات موبايل', icon: '📱' },
+    { value: 'saas', label: 'برمجيات SaaS', icon: '☁️' },
+    { value: 'digital_accounts', label: 'حسابات رقمية (يوتيوب/تيكتوك/انستا)', icon: '📲' },
+    { value: 'digital_content', label: 'محتوى رقمي (كتب/دورات/قنوات)', icon: '📚' },
+    { value: 'branding', label: 'علامات تجارية رقمية', icon: '🏷️' },
+    { value: 'databases', label: 'قواعد بيانات', icon: '🗄️' },
+    { value: 'games', label: 'ألعاب وأصول الألعاب', icon: '🎮' },
+    { value: 'intellectual_property', label: 'ملكية فكرية / اختراعات', icon: '💡' },
+    { value: 'services', label: 'خدمات رقمية', icon: '🔧' },
     { value: 'other', label: 'أخرى', icon: '📦' }
+  ];
+
+  monetizationTypes = [
+    { value: 'subscriptions', label: 'اشتراكات' },
+    { value: 'ads', label: 'إعلانات' },
+    { value: 'affiliate', label: 'تسويق بالعمولة' },
+    { value: 'ecommerce_sales', label: 'مبيعات مباشرة' },
+    { value: 'digital_products', label: 'منتجات رقمية' },
+    { value: 'services', label: 'خدمات' },
+    { value: 'other', label: 'أخرى' }
   ];
 
   loading = false;
@@ -180,7 +201,7 @@ export class SellComponent {
         this.loading = false;
         alert('تم إضافة المشروع بنجاح!');
         localStorage.removeItem('project_draft');
-        this.router.navigate(['/dashboard/seller']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.loading = false;

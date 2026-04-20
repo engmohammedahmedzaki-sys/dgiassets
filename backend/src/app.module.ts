@@ -9,6 +9,13 @@ import { ProjectsModule } from './projects/projects.module';
 import { UploadModule } from './upload/upload.module';
 import { OffersModule } from './offers/offers.module';
 import { AdminModule } from './admin/admin.module';
+import { MediaModule } from './media/media.module';
+import { SettingsModule } from './settings/settings.module';
+import { PaymentsModule } from './payments/payments.module';
+import { DealsModule } from './deals/deals.module';
+import { ChatModule } from './chat/chat.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { KycModule } from './kyc/kyc.module';
 
 @Module({
   imports: [
@@ -25,7 +32,7 @@ import { AdminModule } from './admin/admin.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: process.env.NODE_ENV !== 'production', // false in production for safety
+        synchronize: true, // Set to true to ensure table creation during development/MVP
       }),
       inject: [ConfigService],
     }),
@@ -35,6 +42,13 @@ import { AdminModule } from './admin/admin.module';
     UploadModule,
     OffersModule,
     AdminModule,
+    MediaModule,
+    SettingsModule,
+    PaymentsModule,
+    DealsModule,
+    ChatModule,
+    NotificationsModule,
+    KycModule,
   ],
   controllers: [AppController],
   providers: [AppService],

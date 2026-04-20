@@ -61,6 +61,12 @@
   font-weight: 900;
 }
 
+.logo-img {
+  height: 55px;
+  width: auto;
+  object-fit: contain;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -108,6 +114,16 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.user-greeting {
+  margin-right: 1.5rem;
+  color: var(--text-navy);
+  font-weight: 500;
+}
+
+.user-greeting strong {
+  color: var(--primary-color);
 }
 
 .mobile-menu-btn {

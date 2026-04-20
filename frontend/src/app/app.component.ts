@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
+import { SettingsService, SiteSettings } from './services/settings.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,8 +16,13 @@ export class AppComponent {
   title = 'frontend';
   showLayout = true;
   mobileMenuOpen = false;
+  settings: SiteSettings | null = null;
 
-  constructor(private router: Router) {
+  constructor(
+    public router: Router,
+    private settingsService: SettingsService,
+    public authService: AuthService
+  ) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
@@ -25,6 +32,8 @@ export class AppComponent {
       // Close mobile menu on navigation
       this.mobileMenuOpen = false;
     });
+
+    this.settingsService.settings$.subscribe(s => this.settings = s);
   }
 
   toggleMobileMenu() {

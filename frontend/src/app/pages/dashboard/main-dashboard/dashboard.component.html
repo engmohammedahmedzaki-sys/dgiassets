@@ -1,0 +1,269 @@
+<div class="dashboard-layout glass-theme">
+  <!-- Glass Sidebar -->
+  <app-sidebar class="glass-sidebar" [menuItems]="menuItems" [activeTab]="selectedTab" (tabSelected)="onTabSelect($event)"></app-sidebar>
+
+  <!-- Main Content Area -->
+  <main class="dashboard-content">
+    
+    <!-- Top Glass Header -->
+    <header class="glass-header">
+      <div class="header-info">
+        <h1>لوحة التحكم الموحدة</h1>
+        <p class="role-badge" [ngClass]="userRole">
+          {{ userRole === 'admin' ? 'مدير النظام' : userRole === 'seller' ? 'بائع' : 'مشتري' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <!-- Add actions like notifications, profile snippet here -->
+        <div class="user-avatar-placeholder">👤</div>
+      </div>
+    </header>
+
+    <!-- Scrollable Content View -->
+    <div class="glass-container content-view">
+      
+      <!-- Placeholder content for Overview -->
+      <div *ngIf="selectedTab === 'overview'" class="fade-in">
+        <h2>مرحباً بك في لوحة التحكم</h2>
+        <p>هنا ملخص لجميع الأنشطة والإحصائيات الخاصة بحسابك.</p>
+        
+        <div class="glass-cards-grid">
+           <!-- Example Stats Cards -->
+           <div class="glass-card stat-card">
+              <h3>الإيرادات</h3>
+              <p class="stat-value">$12,450</p>
+           </div>
+           <div class="glass-card stat-card">
+              <h3>الرسائل</h3>
+              <p class="stat-value">5 جديدة</p>
+           </div>
+           <div class="glass-card stat-card">
+              <h3>المشاريع النشطة</h3>
+              <p class="stat-value">3</p>
+           </div>
+        </div>
+      </div>
+
+      <!-- Media Gallery Tab -->
+      <div *ngIf="selectedTab === 'media'" class="fade-in">
+        <app-media-gallery></app-media-gallery>
+      </div>
+
+      <!-- User Management Tab -->
+      <div *ngIf="selectedTab === 'users' && userRole === 'admin'" class="fade-in">
+        <div class="section-header">
+          <div class="header-with-actions">
+            <div>
+              <h2>إدارة المستخدمين</h2>
+              <p>عرض وتعديل صلاحيات المستخدمين والتحكم في حساباتهم.</p>
+            </div>
+            <button class="btn-add-user glass-btn" (click)="showAddUserModal = true">
+              <span>➕</span> إضافة مستخدم جديد
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card table-container">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>المستخدم</th>
+                <th>البريد الإلكتروني</th>
+                <th>الرتبة</th>
+                <th>الحالة</th>
+                <th>تاريخ التسجيل</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar-mini">{{ user.fullName.substring(0,1) }}</div>
+                    <span>{{ user.fullName }}</span>
+                  </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span class="badge" [ngClass]="user.role">
+                    {{ user.role === 'admin' ? 'مدير' : user.role === 'seller' ? 'بائع' : 'مشتري' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                    {{ user.isActive ? 'نشط' : 'موقوف' }}
+                  </span>
+                </td>
+                <td>{{ user.createdAt | date:'shortDate' }}</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="action-btn" (click)="toggleUserStatus(user)" [title]="user.isActive ? 'إيقاف الحساب' : 'تفعيل الحساب'">
+                      {{ user.isActive ? '🚫' : '✅' }}
+                    </button>
+                    <button class="action-btn" (click)="updateUserRole(user, 'admin')" title="ترقية لمدير" *ngIf="user.role !== 'admin'">💎</button>
+                    <button class="action-btn delete" (click)="deleteUser(user)" title="حذف المستخدم">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="usersLoading" class="table-loading">
+            <div class="spinner"></div>
+            <p>جاري تحميل المستخدمين...</p>
+          </div>
+        </div>
+
+        <!-- Add User Modal -->
+        <div class="modal-overlay fade-in" *ngIf="showAddUserModal">
+          <div class="glass-card modal-content">
+            <div class="modal-header">
+              <h3>إضافة مستخدم جديد</h3>
+              <button class="close-btn" (click)="showAddUserModal = false">×</button>
+            </div>
+            <form (ngSubmit)="addUser()" class="modal-form">
+              <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" [(ngModel)]="newUser.fullName" name="fullName" required class="glass-input">
+              </div>
+              <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" [(ngModel)]="newUser.email" name="email" required class="glass-input">
+              </div>
+              <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" [(ngModel)]="newUser.password" name="password" required class="glass-input">
+              </div>
+              <div class="form-group">
+                <label>الرتبة</label>
+                <select [(ngModel)]="newUser.role" name="role" class="glass-input">
+                  <option value="buyer">مشتري</option>
+                  <option value="seller">بائع</option>
+                  <option value="admin">مدير نظام</option>
+                </select>
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-cancel" (click)="showAddUserModal = false">إلغاء</button>
+                <button type="submit" class="glass-btn" [disabled]="addUserLoading">
+                  {{ addUserLoading ? 'جاري الإضافة...' : 'إضافة المستخدم' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="selectedTab === 'settings' && userRole === 'admin'" class="fade-in">
+        <div class="settings-header">
+          <h2>إعدادات الموقع العام</h2>
+          <p>تحكم في هوية المنصة، اللوجو، والمعلومات الأساسية.</p>
+        </div>
+
+        <form (ngSubmit)="saveSettings()" class="settings-form" *ngIf="siteSettings">
+          <div class="form-grid">
+            <!-- Basic Info -->
+            <div class="glass-card form-section">
+              <h3>الهوية الأساسية</h3>
+              
+              <div class="form-group">
+                <label>اسم الموقع</label>
+                <input type="text" [(ngModel)]="siteSettings.siteName" name="siteName" class="glass-input">
+              </div>
+
+              <div class="form-group">
+                <label>وصف الموقع (Meta Description)</label>
+                <textarea [(ngModel)]="siteSettings.siteDescription" name="siteDescription" class="glass-input" rows="3"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>نص الفوتر (Copyright)</label>
+                <input type="text" [(ngModel)]="siteSettings.footerText" name="footerText" class="glass-input">
+              </div>
+            </div>
+
+            <!-- Branding -->
+            <div class="glass-card form-section">
+              <h3>الهوية البصرية (Branding)</h3>
+              
+              <div class="form-group">
+                <label>رابط اللوجو (Header Logo)</label>
+                <div class="input-with-preview">
+                  <input type="text" [(ngModel)]="siteSettings.logoUrl" name="logoUrl" class="glass-input">
+                  <div class="logo-preview" *ngIf="siteSettings.logoUrl">
+                    <img [src]="siteSettings.logoUrl" alt="Logo Preview">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>رابط أيقونة الموقع (Favicon)</label>
+                <div class="input-with-preview">
+                  <input type="text" [(ngModel)]="siteSettings.faviconUrl" name="faviconUrl" class="glass-input">
+                  <div class="favicon-preview" *ngIf="siteSettings.faviconUrl">
+                    <img [src]="siteSettings.faviconUrl" alt="Favicon Preview">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact & Social -->
+            <div class="glass-card form-section">
+              <h3>التواصل والروابط</h3>
+              
+              <div class="form-group">
+                <label>بريد التواصل</label>
+                <input type="email" [(ngModel)]="siteSettings.contactEmail" name="contactEmail" class="glass-input">
+              </div>
+
+              <div class="social-links-grid">
+                <div class="form-group">
+                  <label>Facebook</label>
+                  <input type="url" [(ngModel)]="siteSettings.facebookLink" name="facebookLink" class="glass-input">
+                </div>
+                <div class="form-group">
+                  <label>X (Twitter)</label>
+                  <input type="url" [(ngModel)]="siteSettings.twitterLink" name="twitterLink" class="glass-input">
+                </div>
+                <div class="form-group">
+                  <label>Instagram</label>
+                  <input type="url" [(ngModel)]="siteSettings.instagramLink" name="instagramLink" class="glass-input">
+                </div>
+                <div class="form-group">
+                  <label>LinkedIn</label>
+                  <input type="url" [(ngModel)]="siteSettings.linkedinLink" name="linkedinLink" class="glass-input">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="settings-actions">
+            <div class="status-messages">
+              <span class="success-msg" *ngIf="settingsSuccess">✅ تم حفظ الإعدادات بنجاح</span>
+              <span class="error-msg" *ngIf="settingsError">{{ settingsError }}</span>
+            </div>
+            <button type="submit" class="btn-save glass-btn" [disabled]="settingsLoading">
+              <span *ngIf="!settingsLoading">حفظ التغييرات</span>
+              <span *ngIf="settingsLoading">جاري الحفظ...</span>
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="!siteSettings" class="loading-state">
+          <div class="spinner"></div>
+          <p>جاري تحميل الإعدادات...</p>
+        </div>
+      </div>
+      
+      <!-- Other placeholders -->
+      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings'" class="fade-in empty-state">
+         <h3>قريباً...</h3>
+         <p>سيتم تفعيل قسم "{{ selectedTab }}" قريباً بناءً على صلاحياتك.</p>
+      </div>
+
+    </div>
+  </main>
+  
+  <!-- Decorative Background Blurs for Glassmorphism -->
+  <div class="bg-blur blur-blue"></div>
+  <div class="bg-blur blur-purple"></div>
+</div>

@@ -1,0 +1,196 @@
+<div class="media-library" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+  
+  <!-- Header -->
+  <div class="media-header">
+    <div class="media-title-row">
+      <h2>📁 مكتبة الوسائط</h2>
+      <div class="header-actions">
+        <input 
+          type="file" 
+          #fileInput 
+          (change)="onFileSelected($event)" 
+          multiple 
+          accept="image/*,video/*,.pdf,.doc,.docx,.zip,.rar"
+          style="display:none">
+        <button class="btn-upload" (click)="fileInput.click()" [disabled]="isUploading">
+          {{ isUploading ? '⏳ جاري الرفع...' : '📤 رفع ملفات جديدة' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+      <div class="filter-tabs">
+        <button 
+          *ngFor="let type of ['all','image','video','document']"
+          class="filter-tab" 
+          [class.active]="filterType === type"
+          (click)="filterType = type; applyFilters()">
+          {{ type === 'all' ? 'الكل' : type === 'image' ? '🖼️ صور' : type === 'video' ? '🎬 فيديو' : '📄 مستندات' }}
+          <span class="count">{{ getMediaCount(type) }}</span>
+        </button>
+      </div>
+      <div class="filter-right">
+        <input type="text" class="search-input" placeholder="🔍 بحث في الملفات..." [(ngModel)]="searchQuery" (input)="applyFilters()">
+        <div class="view-toggle">
+          <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" title="عرض شبكي">▦</button>
+          <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="عرض قائمة">☰</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
+  <div *ngIf="error" class="alert alert-error">❌ {{ error }}</div>
+
+  <!-- Upload progress -->
+  <div *ngIf="isUploading" class="upload-progress">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+    </div>
+    <span class="progress-text">جاري رفع الملفات...</span>
+  </div>
+
+  <!-- Drag & Drop Overlay -->
+  <div class="drag-overlay" *ngIf="isDragOver">
+    <div class="drag-content">
+      <span class="drag-icon">📥</span>
+      <p>اسحب الملفات هنا للرفع</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>جاري تحميل الوسائط...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredMedia.length === 0" class="empty-state">
+    <span class="empty-icon">📂</span>
+    <h3>لا توجد ملفات</h3>
+    <p>اسحب ملفات هنا أو اضغط "رفع ملفات جديدة"</p>
+  </div>
+
+  <!-- Main Content: Grid + Detail Panel -->
+  <div class="media-layout" *ngIf="!isLoading && filteredMedia.length > 0">
+
+    <!-- Grid / List View -->
+    <div class="media-grid-container" [class.has-detail]="selectedMedia">
+
+      <!-- Grid View -->
+      <div class="media-grid" *ngIf="viewMode === 'grid'">
+        <div 
+          *ngFor="let media of filteredMedia" 
+          class="media-item" 
+          [class.selected]="selectedMedia?.id === media.id"
+          (click)="selectMedia(media)">
+          <div class="media-thumb">
+            <img *ngIf="isImage(media.mimeType)" [src]="getFullUrl(media.url)" [alt]="media.originalName">
+            <div *ngIf="!isImage(media.mimeType)" class="file-icon-large">
+              {{ getFileIcon(media.mimeType) }}
+            </div>
+            <div class="media-check" *ngIf="selectedMedia?.id === media.id">✓</div>
+          </div>
+          <div class="media-name">{{ media.originalName }}</div>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <table class="media-table" *ngIf="viewMode === 'list'">
+        <thead>
+          <tr>
+            <th>الملف</th>
+            <th>الاسم</th>
+            <th>النوع</th>
+            <th>الحجم</th>
+            <th>التاريخ</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            *ngFor="let media of filteredMedia" 
+            [class.selected]="selectedMedia?.id === media.id"
+            (click)="selectMedia(media)">
+            <td>
+              <div class="list-thumb">
+                <img *ngIf="isImage(media.mimeType)" [src]="getFullUrl(media.url)" [alt]="media.originalName">
+                <span *ngIf="!isImage(media.mimeType)" class="list-icon">{{ getFileIcon(media.mimeType) }}</span>
+              </div>
+            </td>
+            <td class="file-name-col">{{ media.originalName }}</td>
+            <td>{{ media.mimeType.split('/')[1] }}</td>
+            <td>{{ formatSize(media.size) }}</td>
+            <td>{{ formatDate(media.createdAt) }}</td>
+            <td>
+              <button class="btn-sm" (click)="copyUrl(media.url); $event.stopPropagation()">📋</button>
+              <button class="btn-sm btn-danger" (click)="deleteMedia(media.id); $event.stopPropagation()">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Detail Panel (WordPress-style) -->
+    <div class="detail-panel" *ngIf="selectedMedia">
+      <div class="detail-header">
+        <h3>تفاصيل الملف</h3>
+        <button class="close-btn" (click)="closeDetail()">✕</button>
+      </div>
+
+      <div class="detail-body">
+        <!-- Preview -->
+        <div class="detail-preview">
+          <img *ngIf="isImage(selectedMedia.mimeType)" [src]="getFullUrl(selectedMedia.url)" [alt]="selectedMedia.originalName">
+          <div *ngIf="!isImage(selectedMedia.mimeType)" class="detail-file-icon">
+            {{ getFileIcon(selectedMedia.mimeType) }}
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="detail-info">
+          <div class="info-row">
+            <label>اسم الملف:</label>
+            <span>{{ selectedMedia.originalName }}</span>
+          </div>
+          <div class="info-row">
+            <label>نوع الملف:</label>
+            <span>{{ selectedMedia.mimeType }}</span>
+          </div>
+          <div class="info-row">
+            <label>الحجم:</label>
+            <span>{{ formatSize(selectedMedia.size) }}</span>
+          </div>
+          <div class="info-row">
+            <label>تاريخ الرفع:</label>
+            <span>{{ formatDate(selectedMedia.createdAt) }}</span>
+          </div>
+          <div class="info-row" *ngIf="selectedMedia.uploadedBy">
+            <label>رفع بواسطة:</label>
+            <span>{{ selectedMedia.uploadedBy.fullName }}</span>
+          </div>
+
+          <div class="info-row url-row">
+            <label>رابط الملف:</label>
+            <div class="url-copy">
+              <input type="text" [value]="getFullUrl(selectedMedia.url)" readonly class="url-input">
+              <button class="btn-copy" (click)="copyUrl(selectedMedia.url)">📋 نسخ</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="detail-actions">
+          <a [href]="getFullUrl(selectedMedia.url)" target="_blank" class="btn-action btn-view">
+            🔗 فتح في نافذة جديدة
+          </a>
+          <button class="btn-action btn-delete" (click)="deleteMedia(selectedMedia.id)">
+            🗑️ حذف الملف
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

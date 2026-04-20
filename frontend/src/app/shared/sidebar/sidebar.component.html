@@ -14,16 +14,17 @@
     <div class="avatar">{{ getInitials() }}</div>
     <div class="user-details" *ngIf="!isCollapsed">
       <h4>{{ currentUser.fullName }}</h4>
-      <span class="role-badge" [class.buyer]="currentUser.role === 'buyer'" [class.seller]="currentUser.role === 'seller'">
-        {{ currentUser.role === 'buyer' ? 'مشتري' : 'بائع' }}
+      <span class="role-badge" [class.buyer]="currentUser.role === 'buyer'" [class.seller]="currentUser.role === 'seller'" [class.admin]="currentUser.role === 'admin'">
+        {{ currentUser.role === 'admin' ? 'مدير النظام' : currentUser.role === 'seller' ? 'بائع' : 'مشتري' }}
       </span>
     </div>
   </div>
 
   <nav class="nav-menu">
     <a *ngFor="let item of menuItems"
-       [routerLink]="item.route"
-       routerLinkActive="active"
+       href="#"
+       (click)="onItemClick(item, $event)"
+       [class.active]="activeTab === item.route"
        class="nav-item"
        [title]="isCollapsed ? item.label : ''">
       <span class="nav-icon">{{ item.icon }}</span>
@@ -33,6 +34,10 @@
   </nav>
 
   <div class="sidebar-footer">
+    <a class="logout-btn mb-2" routerLink="/" style="text-decoration: none;">
+      <span class="nav-icon">🏠</span>
+      <span *ngIf="!isCollapsed">العودة للموقع</span>
+    </a>
     <button class="logout-btn" (click)="onLogout()">
       <span class="nav-icon">🚪</span>
       <span *ngIf="!isCollapsed">تسجيل الخروج</span>
