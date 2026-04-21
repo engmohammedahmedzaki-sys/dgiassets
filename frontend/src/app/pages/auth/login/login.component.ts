@@ -28,8 +28,7 @@ export class LoginComponent {
   ) {}
 
   signInWithGoogle() {
-    // TODO: Implement Google OAuth
-    alert('سيتم إضافة تسجيل الدخول بجوجل قريباً');
+    this.authService.loginWithGoogle();
   }
 
   onSubmit() {
@@ -42,12 +41,7 @@ export class LoginComponent {
           this.loading = false;
           console.log('Login successful:', response);
 
-          // Navigate based on user role
-          if (response.user.role === 'seller') {
-            this.router.navigate(['/dashboard/seller']);
-          } else {
-            this.router.navigate(['/dashboard/buyer']);
-          }
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.loading = false;

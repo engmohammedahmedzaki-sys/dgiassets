@@ -1,36 +1,65 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: nodemailer.Transporter | null = null;
 
-  constructor(private configService: ConfigService) {
-    const host = this.configService.get<string>('SMTP_HOST');
-    if (host) {
-      this.transporter = nodemailer.createTransport({
-        host,
-        port: this.configService.get<number>('SMTP_PORT', 587),
-        secure: this.configService.get<number>('SMTP_PORT', 587) === 465,
-        auth: {
-          user: this.configService.get<string>('SMTP_USER'),
-          pass: this.configService.get<string>('SMTP_PASS'),
-        },
-      });
+  constructor(
+    private configService: ConfigService,
+    private settingsService: SettingsService,
+  ) {}
+
+  private async getTransporter(): Promise<{
+    transporter: nodemailer.Transporter | null;
+    from: string;
+  }> {
+    const settings = await this.settingsService.getSettings();
+    const fromEnv = this.configService.get<string>('SMTP_FROM');
+
+    if (settings?.smtpEnabled && settings.smtpHost && settings.smtpUser) {
+      const port = settings.smtpPort ?? 587;
+      return {
+        transporter: nodemailer.createTransport({
+          host: settings.smtpHost,
+          port,
+          secure: port === 465,
+          auth: { user: settings.smtpUser, pass: settings.smtpPass ?? '' },
+        }),
+        from: settings.smtpFrom ?? settings.smtpUser,
+      };
     }
+
+    const envHost = this.configService.get<string>('SMTP_HOST');
+    if (envHost) {
+      const port = this.configService.get<number>('SMTP_PORT', 587);
+      return {
+        transporter: nodemailer.createTransport({
+          host: envHost,
+          port,
+          secure: port === 465,
+          auth: {
+            user: this.configService.get<string>('SMTP_USER') ?? '',
+            pass: this.configService.get<string>('SMTP_PASS') ?? '',
+          },
+        }),
+        from: fromEnv ?? 'noreply@dgiassets.com',
+      };
+    }
+
+    return { transporter: null, from: fromEnv ?? 'noreply@dgiassets.com' };
   }
 
   async sendVerificationCode(email: string, code: string, name: string): Promise<void> {
-    if (!this.transporter) {
-      this.logger.warn(`[DEV] OTP for ${email}: ${code}`);
+    const { transporter, from } = await this.getTransporter();
+    if (!transporter) {
+      this.logger.warn(`[DEV/UNSET] OTP for ${email}: ${code}`);
       return;
     }
 
-    const from = this.configService.get<string>('SMTP_FROM', 'noreply@dgiassets.com');
-
-    await this.transporter.sendMail({
+    await transporter.sendMail({
       from: `"منصة DGI Assets" <${from}>`,
       to: email,
       subject: 'كود تفعيل حسابك في DGI Assets',
@@ -51,13 +80,13 @@ export class EmailService {
   }
 
   async sendNotification(email: string, subject: string, body: string): Promise<void> {
-    if (!this.transporter) {
-      this.logger.warn(`[DEV] Email to ${email}: ${subject}`);
+    const { transporter, from } = await this.getTransporter();
+    if (!transporter) {
+      this.logger.warn(`[DEV/UNSET] Email to ${email}: ${subject}`);
       return;
     }
 
-    const from = this.configService.get<string>('SMTP_FROM', 'noreply@dgiassets.com');
-    await this.transporter.sendMail({
+    await transporter.sendMail({
       from: `"DGI Assets" <${from}>`,
       to: email,
       subject,

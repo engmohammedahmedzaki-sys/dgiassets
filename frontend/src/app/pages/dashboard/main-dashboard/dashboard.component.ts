@@ -1,30 +1,42 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { MediaGalleryComponent } from '../media-gallery/media-gallery.component';
 import { AuthService } from '../../../services/auth.service';
-import { SettingsService, SiteSettings } from '../../../services/settings.service';
+import { SettingsService, SiteSettings, IntegrationSettings } from '../../../services/settings.service';
 import { UsersService, User } from '../../../services/users.service';
+import { DealsService, Deal } from '../../../services/deals.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, MediaGalleryComponent, FormsModule],
+  imports: [CommonModule, SidebarComponent, MediaGalleryComponent, FormsModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   userRole: string = 'buyer';
   selectedTab: string = 'overview';
-  
-  // Dynamic menu based on role
+
   menuItems: any[] = [];
 
   siteSettings: SiteSettings | null = null;
   settingsLoading = false;
   settingsSuccess = false;
   settingsError = '';
+
+  // Integrations (API Settings)
+  integrations: IntegrationSettings | null = null;
+  integrationsLoading = false;
+  integrationsSaving = false;
+  integrationsSuccess = '';
+  integrationsError = '';
+
+  // Deals
+  deals: Deal[] = [];
+  dealsLoading = false;
 
   // User Management
   users: User[] = [];
@@ -43,7 +55,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private settingsService: SettingsService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private dealsService: DealsService
   ) {}
 
   ngOnInit() {
@@ -69,14 +82,19 @@ export class DashboardComponent implements OnInit {
         ...baseMenu,
         { label: 'المشاريع', icon: '💼', route: 'projects' },
         { label: 'المستخدمين', icon: '👥', route: 'users' },
+        { label: 'الصفقات', icon: '🤝', route: 'deals' },
+        { label: 'طلبات التوثيق (KYC)', icon: '🪪', route: 'kyc' },
         { label: 'مكتبة الوسائط', icon: '🖼️', route: 'media' },
         { label: 'إعدادات الموقع', icon: '⚙️', route: 'settings' },
+        { label: 'إعدادات الـ API', icon: '🔌', route: 'integrations' },
       ];
     } else if (this.userRole === 'seller') {
       this.menuItems = [
         ...baseMenu,
         { label: 'مشاريعي', icon: '📊', route: 'my-listings' },
         { label: 'العروض', icon: '💼', route: 'offers' },
+        { label: 'صفقاتي', icon: '🤝', route: 'deals' },
+        { label: 'التوثيق (KYC)', icon: '🪪', route: 'kyc' },
         { label: 'مكتبة الوسائط', icon: '🖼️', route: 'media' },
         { label: 'الإعدادات الشخصية', icon: '⚙️', route: 'profile-settings' },
       ];
@@ -86,7 +104,9 @@ export class DashboardComponent implements OnInit {
         ...baseMenu,
         { label: 'المشاريع المتابعة', icon: '⭐', route: 'favorites' },
         { label: 'عروضي', icon: '💼', route: 'my-offers' },
+        { label: 'صفقاتي', icon: '🤝', route: 'deals' },
         { label: 'المشتريات', icon: '✅', route: 'purchases' },
+        { label: 'التوثيق (KYC)', icon: '🪪', route: 'kyc' },
         { label: 'الإعدادات الشخصية', icon: '⚙️', route: 'profile-settings' },
       ];
     }
@@ -94,9 +114,72 @@ export class DashboardComponent implements OnInit {
 
   onTabSelect(tabId: string) {
     this.selectedTab = tabId;
-    if (tabId === 'users' && this.userRole === 'admin') {
-      this.loadUsers();
-    }
+    if (tabId === 'users' && this.userRole === 'admin') this.loadUsers();
+    if (tabId === 'deals') this.loadDeals();
+    if (tabId === 'integrations' && this.userRole === 'admin') this.loadIntegrations();
+  }
+
+  loadDeals() {
+    this.dealsLoading = true;
+    this.dealsService.getMyDeals().subscribe({
+      next: (deals) => {
+        this.deals = deals;
+        this.dealsLoading = false;
+      },
+      error: () => { this.dealsLoading = false; },
+    });
+  }
+
+  loadIntegrations() {
+    this.integrationsLoading = true;
+    this.settingsService.getIntegrations().subscribe({
+      next: (data) => {
+        this.integrations = {
+          ...data,
+          // Clear masked secrets so admin can re-type cleanly
+          moyasarSecretKey: '',
+          googleClientSecret: '',
+          smtpPass: '',
+        };
+        this.integrationsLoading = false;
+      },
+      error: () => { this.integrationsLoading = false; },
+    });
+  }
+
+  saveIntegrations() {
+    if (!this.integrations) return;
+    this.integrationsSaving = true;
+    this.integrationsSuccess = '';
+    this.integrationsError = '';
+
+    this.settingsService.updateIntegrations(this.integrations).subscribe({
+      next: () => {
+        this.integrationsSaving = false;
+        this.integrationsSuccess = 'تم حفظ إعدادات الـ API بنجاح ✅';
+        this.loadIntegrations();
+        setTimeout(() => this.integrationsSuccess = '', 4000);
+      },
+      error: (err) => {
+        this.integrationsSaving = false;
+        this.integrationsError = err.error?.message ?? 'حدث خطأ أثناء الحفظ';
+      },
+    });
+  }
+
+  getDealStatusLabel(status: string): string {
+    return this.dealsService.getStatusLabel(status as any);
+  }
+
+  currentUserKycStatus(): string {
+    const user = this.authService.getCurrentUser() as any;
+    const status = user?.kycStatus ?? 'unverified';
+    const labels: Record<string, string> = {
+      unverified: 'غير موثّق',
+      pending: 'قيد المراجعة',
+      verified: 'موثّق ✅',
+    };
+    return labels[status] ?? status;
   }
 
   loadUsers() {

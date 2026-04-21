@@ -11,7 +11,7 @@ export class SettingsController {
 
   @Get()
   async getSettings() {
-    return this.settingsService.getSettings();
+    return this.settingsService.getPublicSettings();
   }
 
   @Patch()
@@ -19,5 +19,19 @@ export class SettingsController {
   @Roles('admin')
   async updateSettings(@Body() updateData: Partial<Settings>) {
     return this.settingsService.updateSettings(updateData);
+  }
+
+  @Get('integrations')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async getIntegrations() {
+    return this.settingsService.getIntegrations();
+  }
+
+  @Patch('integrations')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async updateIntegrations(@Body() data: Partial<Settings>) {
+    return this.settingsService.updateIntegrations(data);
   }
 }

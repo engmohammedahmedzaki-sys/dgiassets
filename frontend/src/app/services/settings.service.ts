@@ -17,6 +17,26 @@ export interface SiteSettings {
   linkedinLink: string;
 }
 
+export interface IntegrationSettings {
+  moyasarEnabled: boolean;
+  moyasarPublishableKey: string;
+  moyasarSecretKey: string;
+  hasMoyasarSecretKey: boolean;
+
+  googleAuthEnabled: boolean;
+  googleClientId: string;
+  googleClientSecret: string;
+  hasGoogleClientSecret: boolean;
+
+  smtpEnabled: boolean;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPass: string;
+  hasSmtpPass: boolean;
+  smtpFrom: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,6 +65,14 @@ export class SettingsService {
         this.updateTitle(settings.siteName);
       })
     );
+  }
+
+  getIntegrations(): Observable<IntegrationSettings> {
+    return this.http.get<IntegrationSettings>(`${this.apiUrl}/integrations`);
+  }
+
+  updateIntegrations(data: Partial<IntegrationSettings>): Observable<IntegrationSettings> {
+    return this.http.patch<IntegrationSettings>(`${this.apiUrl}/integrations`, data);
   }
 
   private updateFavicon(url: string) {

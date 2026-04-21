@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, UseGuards, Request, HttpCode, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
+import type { Response as ExpressResponse } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -40,7 +40,7 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleCallback(@Request() req: any, @Res() res: Response) {
+  googleCallback(@Request() req: any, @Res() res: ExpressResponse) {
     const token = this.authService.generateTokenPublic(req.user);
     const frontendUrl = process.env.FRONTEND_URL ?? 'https://dgiassets.com';
     res.redirect(`${frontendUrl}/auth/google-callback?token=${token}`);

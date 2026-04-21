@@ -35,6 +35,43 @@ export class Settings {
   @Column({ nullable: true })
   linkedinLink: string;
 
+  // === Integration API Keys (managed from dashboard) ===
+  @Column({ type: 'text', nullable: true })
+  moyasarSecretKey: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  moyasarPublishableKey: string | null;
+
+  @Column({ default: false })
+  moyasarEnabled: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  googleClientId: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  googleClientSecret: string | null;
+
+  @Column({ default: false })
+  googleAuthEnabled: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  smtpHost: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  smtpPort: number | null;
+
+  @Column({ type: 'text', nullable: true })
+  smtpUser: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  smtpPass: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  smtpFrom: string | null;
+
+  @Column({ default: false })
+  smtpEnabled: boolean;
+
   @UpdateDateColumn()
   updatedAt: Date;
 }

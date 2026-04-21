@@ -254,8 +254,153 @@
         </div>
       </div>
       
+      <!-- Deals Tab -->
+      <div *ngIf="selectedTab === 'deals'" class="fade-in">
+        <div class="section-header">
+          <h2>🤝 الصفقات</h2>
+          <p>جميع صفقاتك كمشتري أو بائع مع حالة كل صفقة.</p>
+        </div>
+
+        <div *ngIf="dealsLoading" class="loading-state">
+          <div class="spinner"></div><p>جاري تحميل الصفقات...</p>
+        </div>
+
+        <div *ngIf="!dealsLoading && deals.length === 0" class="empty-state glass-card">
+          <h3>لا توجد صفقات بعد</h3>
+          <p>عندما يتم قبول عرض، سيتم إنشاء صفقة هنا.</p>
+        </div>
+
+        <div *ngIf="!dealsLoading && deals.length > 0" class="glass-card table-container">
+          <table class="glass-table">
+            <thead>
+              <tr><th>المشروع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>الإجراء</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let deal of deals">
+                <td>{{ deal.project?.title || '—' }}</td>
+                <td>{{ deal.finalAmount | number }} ريال</td>
+                <td><span class="status-badge">{{ getDealStatusLabel(deal.status) }}</span></td>
+                <td>{{ deal.createdAt | date:'shortDate' }}</td>
+                <td>
+                  <a [routerLink]="['/deals', deal.id]" class="action-btn">فتح الصفقة ←</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KYC Tab -->
+      <div *ngIf="selectedTab === 'kyc'" class="fade-in">
+        <div class="section-header">
+          <h2>🪪 التوثيق (KYC)</h2>
+          <p *ngIf="userRole !== 'admin'">ارفع وثيقة هوية لتوثيق حسابك وزيادة ثقة المتعاملين معك.</p>
+          <p *ngIf="userRole === 'admin'">مراجعة طلبات التوثيق المقدّمة من المستخدمين.</p>
+        </div>
+
+        <div class="glass-card empty-state">
+          <h3>قريباً - واجهة التوثيق الكاملة</h3>
+          <p>يمكنك حالياً رفع وثائقك عبر الـ API (<code>POST /api/kyc/submit</code>).</p>
+          <p style="margin-top: 1rem;">الحالة الحالية: <strong>{{ currentUserKycStatus() }}</strong></p>
+        </div>
+      </div>
+
+      <!-- Integrations (API Settings) Tab - Admin Only -->
+      <div *ngIf="selectedTab === 'integrations' && userRole === 'admin'" class="fade-in">
+        <div class="section-header">
+          <h2>🔌 إعدادات الـ API والتكاملات</h2>
+          <p>إدارة مفاتيح بوابات الدفع، الإيميل، وتسجيل الدخول بـ Google.</p>
+        </div>
+
+        <div *ngIf="integrationsLoading" class="loading-state"><div class="spinner"></div><p>جاري التحميل...</p></div>
+
+        <form *ngIf="integrations && !integrationsLoading" (ngSubmit)="saveIntegrations()" class="settings-form">
+          <!-- Moyasar -->
+          <div class="glass-card form-section">
+            <h3>💳 Moyasar (بوابة الدفع)</h3>
+            <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+              <label style="margin:0;">
+                <input type="checkbox" [(ngModel)]="integrations.moyasarEnabled" name="moyasarEnabled" />
+                تفعيل الدفع عبر Moyasar
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Publishable Key (pk_...)</label>
+              <input type="text" [(ngModel)]="integrations.moyasarPublishableKey" name="moyasarPublishableKey" class="glass-input" placeholder="pk_live_..." />
+            </div>
+            <div class="form-group">
+              <label>Secret Key (sk_...) <small *ngIf="integrations.hasMoyasarSecretKey" style="color:#10b981;">(محفوظ - اتركه فارغاً للإبقاء)</small></label>
+              <input type="password" [(ngModel)]="integrations.moyasarSecretKey" name="moyasarSecretKey" class="glass-input" placeholder="sk_live_... (اتركه فارغاً للإبقاء على الحالى)" />
+            </div>
+          </div>
+
+          <!-- Google OAuth -->
+          <div class="glass-card form-section">
+            <h3>🔐 Google OAuth</h3>
+            <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+              <label style="margin:0;">
+                <input type="checkbox" [(ngModel)]="integrations.googleAuthEnabled" name="googleAuthEnabled" />
+                تفعيل تسجيل الدخول بـ Google
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Client ID</label>
+              <input type="text" [(ngModel)]="integrations.googleClientId" name="googleClientId" class="glass-input" placeholder="xxxxx.apps.googleusercontent.com" />
+            </div>
+            <div class="form-group">
+              <label>Client Secret <small *ngIf="integrations.hasGoogleClientSecret" style="color:#10b981;">(محفوظ)</small></label>
+              <input type="password" [(ngModel)]="integrations.googleClientSecret" name="googleClientSecret" class="glass-input" placeholder="GOCSPX-..." />
+            </div>
+            <small style="color:#94a3b8;display:block;margin-top:0.5rem;">
+              💡 بعد تغيير مفاتيح Google، يحتاج السيرفر لإعادة تشغيل حتى يتم تفعيل التغييرات.
+            </small>
+          </div>
+
+          <!-- SMTP -->
+          <div class="glass-card form-section">
+            <h3>📧 SMTP (البريد الإلكتروني للـ OTP)</h3>
+            <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+              <label style="margin:0;">
+                <input type="checkbox" [(ngModel)]="integrations.smtpEnabled" name="smtpEnabled" />
+                تفعيل إرسال البريد عبر SMTP
+              </label>
+            </div>
+            <div class="form-group">
+              <label>SMTP Host</label>
+              <input type="text" [(ngModel)]="integrations.smtpHost" name="smtpHost" class="glass-input" placeholder="smtp.gmail.com" />
+            </div>
+            <div class="form-group">
+              <label>Port</label>
+              <input type="number" [(ngModel)]="integrations.smtpPort" name="smtpPort" class="glass-input" placeholder="587" />
+            </div>
+            <div class="form-group">
+              <label>Username (البريد)</label>
+              <input type="email" [(ngModel)]="integrations.smtpUser" name="smtpUser" class="glass-input" placeholder="noreply@dgiassets.com" />
+            </div>
+            <div class="form-group">
+              <label>Password / App Password <small *ngIf="integrations.hasSmtpPass" style="color:#10b981;">(محفوظ)</small></label>
+              <input type="password" [(ngModel)]="integrations.smtpPass" name="smtpPass" class="glass-input" placeholder="كلمة المرور" />
+            </div>
+            <div class="form-group">
+              <label>From Address</label>
+              <input type="email" [(ngModel)]="integrations.smtpFrom" name="smtpFrom" class="glass-input" placeholder="noreply@dgiassets.com" />
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <div class="status-messages">
+              <span class="success-msg" *ngIf="integrationsSuccess">{{ integrationsSuccess }}</span>
+              <span class="error-msg" *ngIf="integrationsError">{{ integrationsError }}</span>
+            </div>
+            <button type="submit" class="btn-save glass-btn" [disabled]="integrationsSaving">
+              {{ integrationsSaving ? 'جاري الحفظ...' : '💾 حفظ إعدادات الـ API' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
       <!-- Other placeholders -->
-      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings'" class="fade-in empty-state">
+      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings' && selectedTab !== 'users' && selectedTab !== 'deals' && selectedTab !== 'kyc' && selectedTab !== 'integrations'" class="fade-in empty-state">
          <h3>قريباً...</h3>
          <p>سيتم تفعيل قسم "{{ selectedTab }}" قريباً بناءً على صلاحياتك.</p>
       </div>

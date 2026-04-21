@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Payment, PaymentStatus } from './payment.entity';
+import { SettingsService } from '../settings/settings.service';
 
 const MOYASAR_BASE = 'https://api.moyasar.com/v1';
 
@@ -19,7 +20,21 @@ export class PaymentsService {
     @InjectRepository(Payment)
     private paymentsRepository: Repository<Payment>,
     private configService: ConfigService,
+    private settingsService: SettingsService,
   ) {}
+
+  private async getMoyasarKey(): Promise<string> {
+    const settings = await this.settingsService.getSettings();
+    const dbKey = settings?.moyasarEnabled ? settings.moyasarSecretKey : null;
+    const envKey = this.configService.get<string>('MOYASAR_SECRET_KEY');
+    const key = dbKey || envKey;
+    if (!key) {
+      throw new BadRequestException(
+        'بوابة الدفع غير مفعّلة. يرجى من الإدارة إعداد مفاتيح Moyasar من لوحة التحكم.',
+      );
+    }
+    return key;
+  }
 
   async initiatePayment(
     dealId: string,
@@ -27,15 +42,13 @@ export class PaymentsService {
     amount: number,
     description: string,
   ): Promise<{ payment: Payment; paymentUrl: string }> {
-    const secretKey = this.configService.get<string>('MOYASAR_SECRET_KEY');
-    if (!secretKey) throw new BadRequestException('بوابة الدفع غير مهيأة');
+    const secretKey = await this.getMoyasarKey();
 
     const frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
       'https://dgiassets.com',
     );
     const callbackUrl = `${frontendUrl}/payment/callback`;
-
     const amountInHalalas = Math.round(amount * 100);
 
     const moyasarBody = {
@@ -92,7 +105,7 @@ export class PaymentsService {
   }
 
   async verifyPayment(moyasarId: string): Promise<Payment> {
-    const secretKey = this.configService.get<string>('MOYASAR_SECRET_KEY');
+    const secretKey = await this.getMoyasarKey();
     const authHeader =
       'Basic ' + Buffer.from(`${secretKey}:`).toString('base64');
 
