@@ -35,6 +35,35 @@ export class Settings {
   @Column({ nullable: true })
   linkedinLink: string;
 
+  // === SEO Settings ===
+  @Column({ type: 'text', nullable: true })
+  metaTitle: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  metaDescription: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  metaKeywords: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  ogImage: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  googleAnalyticsId: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  facebookPixelId: string | null;
+
+  // === Code Injection (for ads, scripts, integrations) ===
+  @Column({ type: 'text', nullable: true })
+  headCode: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  bodyCode: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  footerCode: string | null;
+
   // === Integration API Keys (managed from dashboard) ===
   @Column({ type: 'text', nullable: true })
   moyasarSecretKey: string | null;

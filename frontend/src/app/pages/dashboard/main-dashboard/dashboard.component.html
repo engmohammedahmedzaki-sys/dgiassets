@@ -22,25 +22,85 @@
     <!-- Scrollable Content View -->
     <div class="glass-container content-view">
       
-      <!-- Placeholder content for Overview -->
+      <!-- Overview Tab (Admin sees real stats + chart) -->
       <div *ngIf="selectedTab === 'overview'" class="fade-in">
         <h2>مرحباً بك في لوحة التحكم</h2>
-        <p>هنا ملخص لجميع الأنشطة والإحصائيات الخاصة بحسابك.</p>
-        
-        <div class="glass-cards-grid">
-           <!-- Example Stats Cards -->
-           <div class="glass-card stat-card">
-              <h3>الإيرادات</h3>
-              <p class="stat-value">$12,450</p>
-           </div>
-           <div class="glass-card stat-card">
-              <h3>الرسائل</h3>
-              <p class="stat-value">5 جديدة</p>
-           </div>
-           <div class="glass-card stat-card">
-              <h3>المشاريع النشطة</h3>
-              <p class="stat-value">3</p>
-           </div>
+        <p>ملخص لحظى للأنشطة والإحصائيات.</p>
+
+        <div *ngIf="statsLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <!-- Admin real stats -->
+        <div *ngIf="userRole === 'admin' && adminStats" class="glass-cards-grid">
+          <div class="glass-card stat-card">
+            <h3>👥 المستخدمون</h3>
+            <p class="stat-value">{{ adminStats.totalUsers }}</p>
+            <small>{{ adminStats.verifiedUsers }} موثّق</small>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>💼 المشاريع</h3>
+            <p class="stat-value">{{ adminStats.totalProjects }}</p>
+            <small>{{ adminStats.activeProjects }} نشط · {{ adminStats.pendingProjects }} انتظار</small>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>📝 العروض</h3>
+            <p class="stat-value">{{ adminStats.totalOffers }}</p>
+            <small>{{ adminStats.pendingOffers }} قيد المراجعة</small>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>🤝 الصفقات</h3>
+            <p class="stat-value">{{ adminStats.totalDeals }}</p>
+            <small>{{ adminStats.completedDeals }} مكتملة</small>
+          </div>
+          <div class="glass-card stat-card highlight">
+            <h3>💰 إجمالى الإيرادات</h3>
+            <p class="stat-value">{{ adminStats.totalRevenue | number }} ريال</p>
+            <small>من الصفقات المكتملة</small>
+          </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div *ngIf="userRole === 'admin' && adminStats?.revenueByMonth?.length" class="glass-card chart-card" style="margin-top:1.5rem;padding:1.5rem;">
+          <h3 style="margin:0 0 0.5rem;">📈 نمو الإيرادات (آخر 6 شهور)</h3>
+          <svg viewBox="0 0 300 80" style="width:100%;height:120px;" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6c63ff" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#6c63ff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path [attr.d]="getRevenueSparkline() + ' L 300,80 L 0,80 Z'" fill="url(#revGrad)"/>
+            <path [attr.d]="getRevenueSparkline()" stroke="#6c63ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:#94a3b8;">
+            <span *ngFor="let m of adminStats.revenueByMonth">{{ m.month }}</span>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div *ngIf="userRole === 'admin' && adminStats?.recentProjects?.length" class="glass-card" style="margin-top:1.5rem;padding:1.5rem;">
+          <h3 style="margin:0 0 1rem;">🆕 آخر المشاريع المضافة</h3>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div *ngFor="let p of adminStats.recentProjects" style="display:flex;justify-content:space-between;padding:0.5rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span>{{ p.title }}</span>
+              <span>{{ p.price | number }} ريال · <small>{{ p.createdAt | date:'shortDate' }}</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Non-admin fallback -->
+        <div *ngIf="userRole !== 'admin'" class="glass-cards-grid">
+          <div class="glass-card stat-card">
+            <h3>عروضى النشطة</h3>
+            <p class="stat-value">—</p>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>صفقاتى الجارية</h3>
+            <p class="stat-value">—</p>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>إشعارات</h3>
+            <p class="stat-value">—</p>
+          </div>
         </div>
       </div>
 
@@ -305,6 +365,105 @@
         </div>
       </div>
 
+      <!-- SEO Tab -->
+      <div *ngIf="selectedTab === 'seo' && userRole === 'admin' && siteSettings" class="fade-in">
+        <div class="section-header">
+          <h2>🔍 SEO ومحركات البحث</h2>
+          <p>تخصيص العنوان والوصف والكلمات المفتاحية لمحركات البحث ومنصات التواصل.</p>
+        </div>
+
+        <form (ngSubmit)="saveSettings()" class="settings-form">
+          <div class="glass-card form-section">
+            <h3>Meta Tags (محركات البحث)</h3>
+            <div class="form-group">
+              <label>Meta Title (عنوان الصفحة)</label>
+              <input type="text" [(ngModel)]="siteSettings.metaTitle" name="metaTitle" class="glass-input" placeholder="DGI Assets - سوق المشاريع الرقمية" maxlength="60"/>
+              <small>الطول المفضل: 50-60 حرف</small>
+            </div>
+            <div class="form-group">
+              <label>Meta Description (الوصف)</label>
+              <textarea [(ngModel)]="siteSettings.metaDescription" name="metaDescription" class="glass-input" rows="3" maxlength="160" placeholder="سوق متخصص لبيع وشراء المشاريع الرقمية..."></textarea>
+              <small>الطول المفضل: 150-160 حرف</small>
+            </div>
+            <div class="form-group">
+              <label>Meta Keywords (الكلمات المفتاحية، فاصلة بينها)</label>
+              <input type="text" [(ngModel)]="siteSettings.metaKeywords" name="metaKeywords" class="glass-input" placeholder="مشاريع رقمية, متجر إلكترونى, دومين, ساس"/>
+            </div>
+          </div>
+
+          <div class="glass-card form-section">
+            <h3>Open Graph (للمشاركة على السوشيال)</h3>
+            <div class="form-group">
+              <label>OG Image URL (صورة المشاركة 1200x630)</label>
+              <input type="text" [(ngModel)]="siteSettings.ogImage" name="ogImage" class="glass-input" placeholder="https://dgiassets.com/og.jpg"/>
+            </div>
+          </div>
+
+          <div class="glass-card form-section">
+            <h3>Analytics</h3>
+            <div class="form-group">
+              <label>Google Analytics ID (G-XXXXXXXX)</label>
+              <input type="text" [(ngModel)]="siteSettings.googleAnalyticsId" name="googleAnalyticsId" class="glass-input" placeholder="G-XXXXXXXX"/>
+              <small>هيتحط تلقائياً فى الـ head</small>
+            </div>
+            <div class="form-group">
+              <label>Facebook Pixel ID</label>
+              <input type="text" [(ngModel)]="siteSettings.facebookPixelId" name="facebookPixelId" class="glass-input" placeholder="xxxxxxxxxxxx"/>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <div class="status-messages">
+              <span class="success-msg" *ngIf="settingsSuccess">✅ تم الحفظ</span>
+              <span class="error-msg" *ngIf="settingsError">{{ settingsError }}</span>
+            </div>
+            <button type="submit" class="btn-save glass-btn" [disabled]="settingsLoading">💾 حفظ SEO</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Code Injection Tab -->
+      <div *ngIf="selectedTab === 'code-injection' && userRole === 'admin' && siteSettings" class="fade-in">
+        <div class="section-header">
+          <h2>📝 حقن الأكواد المخصصة</h2>
+          <p>لصق أكواد الـ HTML/JS/CSS (إعلانات، tracking، scripts خارجية). استخدم بحذر.</p>
+        </div>
+
+        <form (ngSubmit)="saveSettings()" class="settings-form">
+          <div class="glass-card form-section">
+            <h3>&lt;head&gt; Code</h3>
+            <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 0.5rem;">يتم تنفيذه قبل تحميل الصفحة. مناسب لـ Google Analytics, verification meta tags.</p>
+            <div class="form-group">
+              <textarea [(ngModel)]="siteSettings.headCode" name="headCode" class="glass-input code-area" rows="6" placeholder="<!-- Google Analytics -->&#10;<script src=...></script>" dir="ltr"></textarea>
+            </div>
+          </div>
+
+          <div class="glass-card form-section">
+            <h3>Body Start Code</h3>
+            <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 0.5rem;">أول ما يظهر فى الـ body. مناسب لـ Facebook Pixel no-script, chat widgets.</p>
+            <div class="form-group">
+              <textarea [(ngModel)]="siteSettings.bodyCode" name="bodyCode" class="glass-input code-area" rows="6" placeholder="<!-- Facebook Pixel -->&#10;<noscript>...</noscript>" dir="ltr"></textarea>
+            </div>
+          </div>
+
+          <div class="glass-card form-section">
+            <h3>Footer Code (Body End)</h3>
+            <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 0.5rem;">آخر حاجة قبل ما تقفل الـ body. مناسب لـ chat scripts (Crisp, Intercom).</p>
+            <div class="form-group">
+              <textarea [(ngModel)]="siteSettings.footerCode" name="footerCode" class="glass-input code-area" rows="6" placeholder="<!-- Live Chat -->&#10;<script>...</script>" dir="ltr"></textarea>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <div class="status-messages">
+              <span class="success-msg" *ngIf="settingsSuccess">✅ تم الحفظ - سيتم تطبيق الأكواد مباشرة</span>
+              <span class="error-msg" *ngIf="settingsError">{{ settingsError }}</span>
+            </div>
+            <button type="submit" class="btn-save glass-btn" [disabled]="settingsLoading">💾 حفظ الأكواد</button>
+          </div>
+        </form>
+      </div>
+
       <!-- Integrations (API Settings) Tab - Admin Only -->
       <div *ngIf="selectedTab === 'integrations' && userRole === 'admin'" class="fade-in">
         <div class="section-header">
@@ -400,7 +559,7 @@
       </div>
 
       <!-- Other placeholders -->
-      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings' && selectedTab !== 'users' && selectedTab !== 'deals' && selectedTab !== 'kyc' && selectedTab !== 'integrations'" class="fade-in empty-state">
+      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings' && selectedTab !== 'users' && selectedTab !== 'deals' && selectedTab !== 'kyc' && selectedTab !== 'integrations' && selectedTab !== 'seo' && selectedTab !== 'code-injection'" class="fade-in empty-state">
          <h3>قريباً...</h3>
          <p>سيتم تفعيل قسم "{{ selectedTab }}" قريباً بناءً على صلاحياتك.</p>
       </div>

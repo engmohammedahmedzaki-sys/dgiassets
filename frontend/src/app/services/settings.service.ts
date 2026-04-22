@@ -15,6 +15,19 @@ export interface SiteSettings {
   twitterLink: string;
   instagramLink: string;
   linkedinLink: string;
+
+  // SEO
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  ogImage?: string;
+  googleAnalyticsId?: string;
+  facebookPixelId?: string;
+
+  // Code injection
+  headCode?: string;
+  bodyCode?: string;
+  footerCode?: string;
 }
 
 export interface IntegrationSettings {
@@ -52,17 +65,51 @@ export class SettingsService {
   fetchSettings() {
     return this.http.get<SiteSettings>(this.apiUrl).subscribe(settings => {
       this.settingsSubject.next(settings);
-      this.updateFavicon(settings.faviconUrl);
-      this.updateTitle(settings.siteName);
+      this.applySettingsToDocument(settings);
     });
+  }
+
+  private applySettingsToDocument(settings: SiteSettings) {
+    this.updateFavicon(settings.faviconUrl);
+    this.updateTitle(settings.metaTitle || settings.siteName);
+    this.setMeta('description', settings.metaDescription || settings.siteDescription);
+    this.setMeta('keywords', settings.metaKeywords || '');
+    this.setMeta('og:title', settings.metaTitle || settings.siteName, 'property');
+    this.setMeta('og:description', settings.metaDescription || settings.siteDescription, 'property');
+    if (settings.ogImage) this.setMeta('og:image', settings.ogImage, 'property');
+    this.injectCode('head-injection', settings.headCode, 'head');
+    this.injectCode('body-injection', settings.bodyCode, 'body-start');
+    this.injectCode('footer-injection', settings.footerCode, 'body-end');
+  }
+
+  private setMeta(name: string, content: string, attr: 'name' | 'property' = 'name') {
+    if (!content) return;
+    let tag = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute(attr, name);
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+  }
+
+  private injectCode(slotId: string, code: string | undefined | null, position: 'head' | 'body-start' | 'body-end') {
+    const existing = document.getElementById(slotId);
+    if (existing) existing.remove();
+    if (!code || !code.trim()) return;
+    const container = document.createElement('div');
+    container.id = slotId;
+    container.innerHTML = code;
+    const parent = position === 'head' ? document.head : document.body;
+    if (position === 'body-start') parent.insertBefore(container, parent.firstChild);
+    else parent.appendChild(container);
   }
 
   updateSettings(data: Partial<SiteSettings>): Observable<SiteSettings> {
     return this.http.patch<SiteSettings>(this.apiUrl, data).pipe(
       tap(settings => {
         this.settingsSubject.next(settings);
-        this.updateFavicon(settings.faviconUrl);
-        this.updateTitle(settings.siteName);
+        this.applySettingsToDocument(settings);
       })
     );
   }

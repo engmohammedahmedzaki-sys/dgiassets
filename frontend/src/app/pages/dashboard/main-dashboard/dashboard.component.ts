@@ -7,6 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { SettingsService, SiteSettings, IntegrationSettings } from '../../../services/settings.service';
 import { UsersService, User } from '../../../services/users.service';
 import { DealsService, Deal } from '../../../services/deals.service';
+import { AdminService, AdminStats } from '../../../services/admin.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -34,6 +35,10 @@ export class DashboardComponent implements OnInit {
   integrationsSuccess = '';
   integrationsError = '';
 
+  // Admin stats (overview)
+  adminStats: AdminStats | null = null;
+  statsLoading = false;
+
   // Deals
   deals: Deal[] = [];
   dealsLoading = false;
@@ -56,7 +61,8 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
     private settingsService: SettingsService,
     private usersService: UsersService,
-    private dealsService: DealsService
+    private dealsService: DealsService,
+    private adminService: AdminService
   ) {}
 
   ngOnInit() {
@@ -64,12 +70,36 @@ export class DashboardComponent implements OnInit {
       if (user) {
         this.userRole = user.role;
         this.buildMenu();
+        if (user.role === 'admin') this.loadAdminStats();
       }
     });
 
     this.settingsService.settings$.subscribe(settings => {
       this.siteSettings = settings ? { ...settings } : null;
     });
+  }
+
+  loadAdminStats() {
+    this.statsLoading = true;
+    this.adminService.getStats().subscribe({
+      next: (stats) => {
+        this.adminStats = stats;
+        this.statsLoading = false;
+      },
+      error: () => { this.statsLoading = false; },
+    });
+  }
+
+  // Build SVG sparkline path from revenueByMonth
+  getRevenueSparkline(): string {
+    if (!this.adminStats?.revenueByMonth?.length) return '';
+    const data = this.adminStats.revenueByMonth;
+    if (data.length < 2) return '';
+    const max = Math.max(...data.map(d => d.revenue), 1);
+    const w = 300, h = 80;
+    const step = w / (data.length - 1);
+    const points = data.map((d, i) => `${i * step},${h - (d.revenue / max) * h}`);
+    return 'M ' + points.join(' L ');
   }
 
   buildMenu() {
@@ -86,6 +116,8 @@ export class DashboardComponent implements OnInit {
         { label: 'طلبات التوثيق (KYC)', icon: '🪪', route: 'kyc' },
         { label: 'مكتبة الوسائط', icon: '🖼️', route: 'media' },
         { label: 'إعدادات الموقع', icon: '⚙️', route: 'settings' },
+        { label: 'SEO ومحركات البحث', icon: '🔍', route: 'seo' },
+        { label: 'حقن الأكواد', icon: '📝', route: 'code-injection' },
         { label: 'إعدادات الـ API', icon: '🔌', route: 'integrations' },
       ];
     } else if (this.userRole === 'seller') {

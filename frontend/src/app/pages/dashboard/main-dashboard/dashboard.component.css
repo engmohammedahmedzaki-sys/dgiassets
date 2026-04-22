@@ -501,3 +501,68 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Stat Card Small Text */
+.stat-card small {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+.stat-card.highlight {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(255, 255, 255, 0.6));
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+.stat-card.highlight .stat-value { color: #6c63ff; }
+
+/* Chart card */
+.chart-card svg path {
+  transition: all 0.3s;
+}
+
+/* Code area for injection textareas */
+.code-area {
+  font-family: 'Courier New', ui-monospace, monospace !important;
+  font-size: 0.85rem;
+  background: rgba(15, 23, 42, 0.8) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(108, 99, 255, 0.3) !important;
+  min-height: 140px;
+  resize: vertical;
+}
+
+/* Section header */
+.section-header { margin-bottom: 1.5rem; }
+.section-header h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.section-header p { color: #64748b; margin: 0; }
+
+/* Status badge (deals) */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(108, 99, 255, 0.12);
+  color: #6c63ff;
+}
+
+/* Action button (deals) */
+.action-btn {
+  background: rgba(108, 99, 255, 0.12);
+  color: #6c63ff;
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.action-btn:hover { background: rgba(108, 99, 255, 0.2); }
