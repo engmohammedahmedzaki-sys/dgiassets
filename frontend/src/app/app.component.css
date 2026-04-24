@@ -29,6 +29,7 @@
 .logo {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
   text-decoration: none;
   transition: transform 0.2s ease;
@@ -36,10 +37,22 @@
 .logo:hover { transform: scale(1.03); }
 
 .logo-img {
-  height: 46px;
+  height: 52px;
   width: auto;
   object-fit: contain;
-  max-width: 180px;
+  max-width: 200px;
+  display: block;
+}
+
+.logo-text {
+  display: none;
+  font-size: 1.35rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.02em;
 }
 
 /* Nav */
@@ -167,8 +180,11 @@
    Mobile (≤768px): drawer menu
    ============================================ */
 @media (max-width: 768px) {
-  .header-container { padding: 0.5rem 1rem; }
-  .logo-img { height: 38px; max-width: 140px; }
+  .header-container { padding: 0.55rem 1rem; }
+
+  /* Replace image with text on mobile (avoid PNG padding issues) */
+  .logo-img { display: none; }
+  .logo-text { display: inline-block; font-size: 1.2rem; }
 
   .mobile-menu-btn { display: inline-flex; }
 

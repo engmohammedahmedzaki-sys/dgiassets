@@ -22,6 +22,7 @@ export class SidebarComponent implements OnInit {
   @Input() activeTab: string = '';
   @Output() tabSelected = new EventEmitter<string>();
   isCollapsed = false;
+  isMobileOpen = false;
   currentUser: any = null;
 
   constructor(
@@ -37,6 +38,14 @@ export class SidebarComponent implements OnInit {
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  toggleMobile() {
+    this.isMobileOpen = !this.isMobileOpen;
+  }
+
+  closeMobile() {
+    this.isMobileOpen = false;
   }
 
   onItemClick(item: MenuItem, event: Event) {

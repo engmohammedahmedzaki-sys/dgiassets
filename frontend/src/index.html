@@ -39,7 +39,7 @@
   <!-- Canonical -->
   <link rel="canonical" href="https://dgiassets.com/">
 
-  <!-- Splash screen styles (prevents FOUC + logo flash) -->
+  <!-- Quick splash - typewriter name -->
   <style>
     html, body { margin: 0; padding: 0; background: #0a1628; }
     body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
@@ -48,49 +48,51 @@
       inset: 0;
       z-index: 99999;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       background: radial-gradient(ellipse at center, #1a3d7a 0%, #0a1628 70%);
-      transition: opacity 0.4s ease-out;
+      transition: opacity 0.25s ease-out;
     }
-    #app-splash img {
-      width: 220px;
-      max-width: 60vw;
-      filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.4));
-      animation: splash-pulse 2s ease-in-out infinite;
-    }
-    #app-splash .loader {
-      margin-top: 2rem;
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255,255,255,0.15);
-      border-top-color: #60a5fa;
-      border-radius: 50%;
-      animation: splash-spin 0.9s linear infinite;
+    #splash-name {
+      color: #fff;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid #60a5fa;
+      width: 0;
+      animation: splash-type 0.7s steps(11) forwards, splash-caret 0.6s step-end 3;
+      background: linear-gradient(135deg, #60a5fa 0%, #fff 50%, #3b6cb5 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     #app-splash.hidden { opacity: 0; pointer-events: none; }
-    @keyframes splash-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.92; } }
-    @keyframes splash-spin { to { transform: rotate(360deg); } }
+    @keyframes splash-type { from { width: 0; } to { width: 11ch; } }
+    @keyframes splash-caret { 50% { border-color: transparent; } }
   </style>
 </head>
 <body>
   <div id="app-splash">
-    <img src="assets/branding/logo.png" alt="DGI Assets">
-    <div class="loader"></div>
+    <div id="splash-name">DGI Assets</div>
   </div>
 
   <app-root></app-root>
 
   <script>
+    function hideSplash() {
+      var splash = document.getElementById('app-splash');
+      if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(function () { splash.remove(); }, 250);
+      }
+    }
+    // Hide as soon as app is ready (fallback: 900ms)
+    var splashTimer = setTimeout(hideSplash, 900);
     window.addEventListener('load', function () {
-      setTimeout(function () {
-        var splash = document.getElementById('app-splash');
-        if (splash) {
-          splash.classList.add('hidden');
-          setTimeout(function () { splash.remove(); }, 500);
-        }
-      }, 300);
+      clearTimeout(splashTimer);
+      setTimeout(hideSplash, 100);
     });
   </script>
 </body>

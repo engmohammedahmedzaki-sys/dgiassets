@@ -1,7 +1,13 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed">
+<button class="sidebar-mobile-toggle" (click)="toggleMobile()" aria-label="القائمة">
+  {{ isMobileOpen ? '✕' : '☰' }}
+</button>
+
+<div class="sidebar-backdrop" [class.show]="isMobileOpen" (click)="closeMobile()"></div>
+
+<aside class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
   <div class="sidebar-header">
     <div class="logo">
-      <div class="logo-icon">م</div>
+      <div class="logo-icon">DA</div>
       <span class="logo-text" *ngIf="!isCollapsed">DGI Assets</span>
     </div>
     <button class="toggle-btn" (click)="toggleSidebar()">
@@ -23,7 +29,7 @@
   <nav class="nav-menu">
     <a *ngFor="let item of menuItems"
        href="#"
-       (click)="onItemClick(item, $event)"
+       (click)="onItemClick(item, $event); closeMobile()"
        [class.active]="activeTab === item.route"
        class="nav-item"
        [title]="isCollapsed ? item.label : ''">
