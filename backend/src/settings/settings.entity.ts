@@ -5,10 +5,10 @@ export class Settings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: 'منصة المشاريع' })
+  @Column({ default: 'DGI Assets - الأصول الرقمية' })
   siteName: string;
 
-  @Column({ default: 'سوق بيع وشراء المشاريع الرقمية' })
+  @Column({ default: 'أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة' })
   siteDescription: string;
 
   @Column({ nullable: true })
@@ -17,7 +17,7 @@ export class Settings {
   @Column({ nullable: true })
   faviconUrl: string;
 
-  @Column({ default: '© 2024 منصة المشاريع. جميع الحقوق محفوظة.' })
+  @Column({ default: '© 2026 DGI Assets - الأصول الرقمية. جميع الحقوق محفوظة.' })
   footerText: string;
 
   @Column({ nullable: true })

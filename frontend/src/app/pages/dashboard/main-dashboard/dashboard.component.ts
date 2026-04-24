@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit {
   // Admin stats (overview)
   adminStats: AdminStats | null = null;
   statsLoading = false;
+  statsError = '';
 
   // Deals
   deals: Deal[] = [];
@@ -81,12 +82,19 @@ export class DashboardComponent implements OnInit {
 
   loadAdminStats() {
     this.statsLoading = true;
+    this.statsError = '';
     this.adminService.getStats().subscribe({
       next: (stats) => {
         this.adminStats = stats;
         this.statsLoading = false;
       },
-      error: () => { this.statsLoading = false; },
+      error: (err) => {
+        this.statsLoading = false;
+        const status = err?.status;
+        if (status === 401) this.statsError = 'انتهت الجلسة. قم بتسجيل الدخول مجدداً.';
+        else if (status === 403) this.statsError = 'ليس لديك صلاحية لعرض الإحصائيات.';
+        else this.statsError = 'تعذّر تحميل الإحصائيات. حاول مرة أخرى.';
+      },
     });
   }
 

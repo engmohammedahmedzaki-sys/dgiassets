@@ -20,9 +20,12 @@ export class SettingsService implements OnModuleInit {
     const count = await this.settingsRepository.count();
     if (count === 0) {
       const defaultSettings = this.settingsRepository.create({
-        siteName: 'منصة المشاريع',
-        siteDescription: 'سوق بيع وشراء المشاريع الرقمية',
-        footerText: '© 2024 منصة المشاريع. جميع الحقوق محفوظة.',
+        siteName: 'DGI Assets - الأصول الرقمية',
+        siteDescription: 'أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة',
+        footerText: '© 2026 DGI Assets - الأصول الرقمية. جميع الحقوق محفوظة.',
+        metaTitle: 'DGI Assets - منصة الأصول الرقمية | بيع وشراء الأصول الرقمية',
+        metaDescription: 'منصة DGI Assets - أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة: مواقع، تطبيقات، متاجر، دومينات، حسابات، SaaS، مع ضمان كامل ونظام Escrow.',
+        metaKeywords: 'أصول رقمية, بيع مشاريع, شراء مواقع, دومينات, متاجر إلكترونية, SaaS, DGI Assets',
       });
       await this.settingsRepository.save(defaultSettings);
     }

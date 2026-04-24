@@ -27,7 +27,12 @@
         <h2>مرحباً بك في لوحة التحكم</h2>
         <p>ملخص لحظى للأنشطة والإحصائيات.</p>
 
-        <div *ngIf="statsLoading" class="loading-state"><div class="spinner"></div></div>
+        <div *ngIf="statsLoading" class="loading-state"><div class="spinner"></div><p>جاري تحميل الإحصائيات...</p></div>
+
+        <div *ngIf="!statsLoading && statsError && userRole === 'admin'" class="glass-card" style="border:1.5px solid #fecaca;background:#fef2f2;padding:1.25rem;color:#dc2626;">
+          <strong>⚠️ {{ statsError }}</strong>
+          <button class="glass-btn" style="margin-right:1rem;" (click)="loadAdminStats()">🔄 إعادة المحاولة</button>
+        </div>
 
         <!-- Admin real stats -->
         <div *ngIf="userRole === 'admin' && adminStats" class="glass-cards-grid">

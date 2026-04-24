@@ -2,20 +2,18 @@
 <header class="header" *ngIf="showLayout">
   <div class="header-container">
     <!-- Logo -->
-    <a routerLink="/" class="logo">
-      <img *ngIf="settings?.logoUrl" [src]="settings?.logoUrl" class="logo-img" [alt]="settings?.siteName">
-      <div *ngIf="!settings?.logoUrl" class="logo-icon">م</div>
-      <span class="logo-text" *ngIf="!settings?.logoUrl">{{ settings?.siteName || 'منصة المشاريع' }}</span>
+    <a routerLink="/" class="logo" aria-label="DGI Assets">
+      <img [src]="settings?.logoUrl || 'assets/branding/logo.png'" class="logo-img" alt="DGI Assets - الأصول الرقمية">
     </a>
 
     <!-- Navigation -->
     <nav class="nav" [class.mobile-open]="mobileMenuOpen">
       <ul class="nav-links" [class.show]="mobileMenuOpen">
-        <li><a routerLink="/" class="nav-link">الرئيسية</a></li>
-        <li><a routerLink="/browse" class="nav-link">تصفح المشاريع</a></li>
-        <li><a routerLink="/sell" class="nav-link">بيع مشروعك</a></li>
-        <li><a href="#about" class="nav-link">من نحن</a></li>
-        <li><a href="#contact" class="nav-link">تواصل معنا</a></li>
+        <li><a routerLink="/" class="nav-link" (click)="closeMobileMenu()">الرئيسية</a></li>
+        <li><a routerLink="/browse" class="nav-link" (click)="closeMobileMenu()">تصفح الأصول</a></li>
+        <li><a routerLink="/sell" class="nav-link" (click)="closeMobileMenu()">بيع أصلك</a></li>
+        <li><a routerLink="/about" class="nav-link" (click)="closeMobileMenu()">من نحن</a></li>
+        <li><a routerLink="/contact" class="nav-link" (click)="closeMobileMenu()">تواصل معنا</a></li>
       </ul>
 
       <div class="nav-actions" [class.show]="mobileMenuOpen">
@@ -47,8 +45,8 @@
   <div class="container">
     <div class="footer-content">
       <div class="footer-section">
-        <h4>{{ settings?.siteName || 'منصة المشاريع' }}</h4>
-        <p>{{ settings?.siteDescription || 'منصة موثوقة لبيع وشراء المشاريع الرقمية بأمان وضمان كامل' }}</p>
+        <h4>{{ settings?.siteName || 'DGI Assets' }}</h4>
+        <p>{{ settings?.siteDescription || 'أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة بضمان كامل.' }}</p>
       </div>
 
       <div class="footer-section">
@@ -82,7 +80,7 @@
     </div>
 
     <div class="footer-bottom">
-      <p>{{ settings?.footerText || '&copy; 2024 منصة المشاريع. جميع الحقوق محفوظة.' }}</p>
+      <p>{{ settings?.footerText || '&copy; 2026 DGI Assets - الأصول الرقمية. جميع الحقوق محفوظة.' }}</p>
     </div>
   </div>
 </footer>

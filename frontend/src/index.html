@@ -1,13 +1,97 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <title>Frontend</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="theme-color" content="#1a3d7a">
+
+  <title>DGI Assets - منصة الأصول الرقمية | بيع وشراء الأصول الرقمية</title>
+  <meta name="description" content="منصة DGI Assets - أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة: مواقع، تطبيقات، متاجر، دومينات، حسابات، SaaS، مع ضمان كامل ونظام Escrow.">
+  <meta name="keywords" content="أصول رقمية, بيع مشاريع, شراء مواقع, دومينات, متاجر إلكترونية, SaaS, DGI Assets, digital assets marketplace">
+  <meta name="author" content="DGI Assets">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dgiassets.com/">
+  <meta property="og:title" content="DGI Assets - منصة الأصول الرقمية">
+  <meta property="og:description" content="أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة - مواقع، تطبيقات، متاجر، دومينات، SaaS، مع ضمان كامل.">
+  <meta property="og:image" content="https://dgiassets.com/assets/branding/logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ar_SA">
+  <meta property="og:site_name" content="DGI Assets">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DGI Assets - منصة الأصول الرقمية">
+  <meta name="twitter:description" content="سوق عربى متخصص لبيع وشراء الأصول الرقمية بضمان كامل.">
+  <meta name="twitter:image" content="https://dgiassets.com/assets/branding/logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/branding/favicon.png">
+  <link rel="apple-touch-icon" href="assets/branding/logo.png">
+
+  <!-- Preload brand assets -->
+  <link rel="preload" as="image" href="assets/branding/logo.png">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://dgiassets.com/">
+
+  <!-- Splash screen styles (prevents FOUC + logo flash) -->
+  <style>
+    html, body { margin: 0; padding: 0; background: #0a1628; }
+    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+    #app-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #1a3d7a 0%, #0a1628 70%);
+      transition: opacity 0.4s ease-out;
+    }
+    #app-splash img {
+      width: 220px;
+      max-width: 60vw;
+      filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.4));
+      animation: splash-pulse 2s ease-in-out infinite;
+    }
+    #app-splash .loader {
+      margin-top: 2rem;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: #60a5fa;
+      border-radius: 50%;
+      animation: splash-spin 0.9s linear infinite;
+    }
+    #app-splash.hidden { opacity: 0; pointer-events: none; }
+    @keyframes splash-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.92; } }
+    @keyframes splash-spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <div id="app-splash">
+    <img src="assets/branding/logo.png" alt="DGI Assets">
+    <div class="loader"></div>
+  </div>
+
   <app-root></app-root>
+
+  <script>
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var splash = document.getElementById('app-splash');
+        if (splash) {
+          splash.classList.add('hidden');
+          setTimeout(function () { splash.remove(); }, 500);
+        }
+      }, 300);
+    });
+  </script>
 </body>
 </html>

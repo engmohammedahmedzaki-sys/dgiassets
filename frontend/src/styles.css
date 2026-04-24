@@ -10,43 +10,53 @@
    CSS Variables - Design System
    ============================================ */
 :root {
-  /* Primary Colors - Navy Blue (كحلي) Palette */
-  --primary-gradient: linear-gradient(135deg, #1a3a52 0%, #0f2537 100%);
-  --primary-light: #1a3a52;
-  --primary-dark: #0f2537;
-  --primary-hover: #2d5f7e;
+  /* Primary - Metallic Deep Blue (DGI Assets brand) */
+  --primary-gradient: linear-gradient(135deg, #1a3d7a 0%, #0a1628 100%);
+  --primary-color: #1a3d7a;
+  --primary-light: #3b6cb5;
+  --primary-lighter: #60a5fa;
+  --primary-dark: #0a1628;
+  --primary-hover: #2c5aa0;
 
-  /* Secondary Colors - Cream & Gold (لبني وذهبي) */
-  --secondary-gradient: linear-gradient(135deg, #f5e6d3 0%, #d4af37 100%);
-  --secondary-light: #f5e6d3;
-  --secondary-dark: #d4af37;
+  /* Secondary - Metallic Silver/Blue Accent */
+  --secondary-gradient: linear-gradient(135deg, #60a5fa 0%, #3b6cb5 100%);
+  --secondary-light: #dbeafe;
+  --secondary-dark: #3b6cb5;
 
   /* Accent Colors */
-  --accent-cyan: #3a7ca5;
-  --accent-green: #2e8b57;
-  --accent-orange: #c17817;
-  --accent-gold: #d4af37;
+  --accent-cyan: #22d3ee;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-gold: #eab308;
+  --accent-red: #ef4444;
 
-  /* Neutral Colors */
+  /* Neutral */
   --bg-primary: #ffffff;
-  --bg-secondary: #faf8f3;
-  --bg-dark: #0f2537;
+  --bg-secondary: #f1f5fb;
+  --bg-dark: #0a1628;
   --bg-card: #ffffff;
-  --bg-cream: #f5e6d3;
+  --bg-cream: #eff6ff;
+  --bg-glass: rgba(255, 255, 255, 0.55);
+  --bg-glass-dark: rgba(10, 22, 40, 0.55);
 
-  /* Text Colors */
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
-  --text-light: #a0aec0;
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-light: #94a3b8;
   --text-white: #ffffff;
-  --text-navy: #1a3a52;
+  --text-navy: #1a3d7a;
 
   /* Border & Shadow */
   --border-color: #e2e8f0;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 30px rgba(26, 58, 82, 0.3);
+  --border-glass: rgba(255, 255, 255, 0.7);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 40px rgba(15, 23, 42, 0.12);
+  --shadow-glass: 0 8px 32px rgba(26, 61, 122, 0.12);
+  --shadow-glow: 0 0 30px rgba(59, 108, 181, 0.3);
+
+  /* Glass blur */
+  --blur-glass: 16px;
 
   /* Spacing */
   --spacing-xs: 0.5rem;
