@@ -35,4 +35,20 @@ export class AdminService {
   getStats(): Observable<AdminStats> {
     return this.http.get<AdminStats>(`${this.apiUrl}/stats`);
   }
+
+  getAllProjects(): Observable<{ projects: any[]; total: number }> {
+    return this.http.get<{ projects: any[]; total: number }>(`${this.apiUrl}/projects`);
+  }
+
+  approveProject(id: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/projects/${id}/approve`, {});
+  }
+
+  rejectProject(id: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/projects/${id}/reject`, {});
+  }
+
+  deleteProject(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/projects/${id}`);
+  }
 }

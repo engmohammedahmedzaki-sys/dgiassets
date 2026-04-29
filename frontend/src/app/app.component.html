@@ -1,66 +1,108 @@
-<!-- Header -->
-<header class="header" *ngIf="showLayout">
-  <div class="header-container">
-    <!-- Logo -->
-    <a routerLink="/" class="logo" aria-label="DGI Assets">
-      <img [src]="settings?.logoUrl || 'assets/branding/logo.png'" class="logo-img" alt="DGI Assets">
-      <span class="logo-text">DGI Assets</span>
+<!-- ============= Header ============= -->
+<header class="dgi-header" *ngIf="showLayout">
+  <div class="dgi-header-inner">
+
+    <!-- Logo (always visible - actual brand image) -->
+    <a routerLink="/" class="dgi-logo" aria-label="DGI Assets - الرئيسية">
+      <img [src]="settings?.logoUrl || 'assets/branding/logo.png'" alt="DGI Assets" class="dgi-logo-img">
     </a>
 
-    <!-- Navigation -->
-    <nav class="nav" [class.mobile-open]="mobileMenuOpen">
-      <ul class="nav-links" [class.show]="mobileMenuOpen">
-        <li><a routerLink="/" class="nav-link" (click)="closeMobileMenu()">الرئيسية</a></li>
-        <li><a routerLink="/browse" class="nav-link" (click)="closeMobileMenu()">تصفح الأصول</a></li>
-        <li><a routerLink="/sell" class="nav-link" (click)="closeMobileMenu()">بيع أصلك</a></li>
-        <li><a routerLink="/about" class="nav-link" (click)="closeMobileMenu()">من نحن</a></li>
-        <li><a routerLink="/contact" class="nav-link" (click)="closeMobileMenu()">تواصل معنا</a></li>
-      </ul>
-
-      <div class="nav-actions" [class.show]="mobileMenuOpen">
-        <ng-container *ngIf="authService.currentUser$ | async as user; else guestLinks">
-          <span class="user-greeting">مرحباً، <strong>{{ user.fullName }}</strong></span>
-          <button class="btn btn-secondary" routerLink="/dashboard">
-            دخول الداشبورد
-          </button>
-          <button class="btn btn-ghost" (click)="authService.logout(); router.navigate(['/login'])">خروج</button>
-        </ng-container>
-        <ng-template #guestLinks>
-          <button class="btn btn-ghost" routerLink="/login">تسجيل الدخول</button>
-          <button class="btn btn-primary" routerLink="/register">إنشاء حساب</button>
-        </ng-template>
-      </div>
-
-      <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
-        {{ mobileMenuOpen ? '✕' : '☰' }}
-      </button>
+    <!-- Desktop Nav -->
+    <nav class="dgi-nav-desktop">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">الرئيسية</a>
+      <a routerLink="/browse" routerLinkActive="active">تصفّح الأصول</a>
+      <a routerLink="/sell" routerLinkActive="active">بيع أصلك</a>
+      <a routerLink="/about" routerLinkActive="active">من نحن</a>
+      <a routerLink="/contact" routerLinkActive="active">تواصل معنا</a>
     </nav>
+
+    <!-- Desktop Actions -->
+    <div class="dgi-actions-desktop">
+      <ng-container *ngIf="authService.currentUser$ | async as user; else guestLinks">
+        <span class="dgi-user-greeting">
+          {{ user.fullName }}
+          <span *ngIf="user.kycStatus === 'verified'" class="verified-badge" title="حساب موثّق">✓</span>
+        </span>
+        <a routerLink="/dashboard" class="dgi-btn dgi-btn-primary">الداشبورد</a>
+        <button class="dgi-btn dgi-btn-ghost" (click)="logoutAndRedirect()">خروج</button>
+      </ng-container>
+      <ng-template #guestLinks>
+        <a routerLink="/login" class="dgi-btn dgi-btn-ghost">دخول</a>
+        <a routerLink="/register" class="dgi-btn dgi-btn-primary">إنشاء حساب</a>
+      </ng-template>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <button class="dgi-mobile-toggle" (click)="toggleMobileMenu()" aria-label="القائمة">
+      <span *ngIf="!mobileMenuOpen">☰</span>
+      <span *ngIf="mobileMenuOpen">✕</span>
+    </button>
+
   </div>
 </header>
+
+<!-- Mobile Drawer + Backdrop -->
+<div class="dgi-drawer-backdrop" [class.open]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+<aside class="dgi-drawer" [class.open]="mobileMenuOpen" *ngIf="showLayout">
+  <div class="dgi-drawer-header">
+    <a routerLink="/" class="dgi-logo" (click)="closeMobileMenu()">
+      <span class="dgi-logo-mark">DA</span>
+      <span class="dgi-logo-text">DGI Assets</span>
+    </a>
+    <button class="dgi-drawer-close" (click)="closeMobileMenu()" aria-label="إغلاق">✕</button>
+  </div>
+
+  <nav class="dgi-drawer-nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">🏠 الرئيسية</a>
+    <a routerLink="/browse" routerLinkActive="active" (click)="closeMobileMenu()">🔍 تصفّح الأصول</a>
+    <a routerLink="/sell" routerLinkActive="active" (click)="closeMobileMenu()">💼 بيع أصلك</a>
+    <a routerLink="/about" routerLinkActive="active" (click)="closeMobileMenu()">ℹ️ من نحن</a>
+    <a routerLink="/contact" routerLinkActive="active" (click)="closeMobileMenu()">📞 تواصل معنا</a>
+  </nav>
+
+  <div class="dgi-drawer-actions">
+    <ng-container *ngIf="authService.currentUser$ | async as user; else mobileGuest">
+      <div class="dgi-drawer-user">
+        <strong>{{ user.fullName }}</strong>
+        <span *ngIf="user.kycStatus === 'verified'" class="verified-badge">✓</span>
+        <small>{{ user.email }}</small>
+      </div>
+      <a routerLink="/dashboard" class="dgi-btn dgi-btn-primary" (click)="closeMobileMenu()">الداشبورد</a>
+      <button class="dgi-btn dgi-btn-ghost" (click)="closeMobileMenu(); logoutAndRedirect()">خروج</button>
+    </ng-container>
+    <ng-template #mobileGuest>
+      <a routerLink="/login" class="dgi-btn dgi-btn-ghost" (click)="closeMobileMenu()">دخول</a>
+      <a routerLink="/register" class="dgi-btn dgi-btn-primary" (click)="closeMobileMenu()">إنشاء حساب</a>
+    </ng-template>
+  </div>
+</aside>
 
 <!-- Router Outlet -->
 <router-outlet></router-outlet>
 
-<!-- Footer -->
-<footer class="footer" *ngIf="showLayout">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h4>{{ settings?.siteName || 'DGI Assets' }}</h4>
+<!-- ============= Footer ============= -->
+<footer class="dgi-footer" *ngIf="showLayout">
+  <div class="dgi-footer-inner">
+    <div class="dgi-footer-grid">
+      <div class="dgi-footer-section">
+        <div class="dgi-logo" style="margin-bottom: 1rem;">
+          <span class="dgi-logo-mark" style="background: rgba(96,165,250,0.15); color:#60a5fa;">DA</span>
+          <span style="font-size:1.25rem;font-weight:800;color:#fff;">DGI Assets</span>
+        </div>
         <p>{{ settings?.siteDescription || 'أول سوق عربى متخصص لبيع وشراء الأصول الرقمية الموثّقة بضمان كامل.' }}</p>
       </div>
 
-      <div class="footer-section">
+      <div class="dgi-footer-section">
         <h4>روابط سريعة</h4>
         <ul>
-          <li><a routerLink="/browse">تصفح المشاريع</a></li>
-          <li><a routerLink="/sell">بيع مشروعك</a></li>
-          <li><a href="#about">من نحن</a></li>
-          <li><a href="#contact">تواصل معنا</a></li>
+          <li><a routerLink="/browse">تصفّح الأصول</a></li>
+          <li><a routerLink="/sell">بيع أصلك</a></li>
+          <li><a routerLink="/about">من نحن</a></li>
+          <li><a routerLink="/contact">تواصل معنا</a></li>
         </ul>
       </div>
 
-      <div class="footer-section">
+      <div class="dgi-footer-section">
         <h4>الدعم</h4>
         <ul>
           <li><a href="#faq">الأسئلة الشائعة</a></li>
@@ -70,19 +112,17 @@
         </ul>
       </div>
 
-      <div class="footer-section">
+      <div class="dgi-footer-section">
         <h4>تواصل معنا</h4>
         <ul>
-          <li>📧 info&#64;marketplace.com</li>
-          <li>📱 +966 50 123 4567</li>
+          <li>🌐 {{ settings?.contactEmail || 'info@dgiassets.com' }}</li>
           <li>📍 الرياض، المملكة العربية السعودية</li>
         </ul>
       </div>
     </div>
 
-    <div class="footer-bottom">
-      <p>{{ settings?.footerText || '&copy; 2026 DGI Assets - الأصول الرقمية. جميع الحقوق محفوظة.' }}</p>
+    <div class="dgi-footer-bottom">
+      <p>{{ settings?.footerText || '© 2026 DGI Assets - الأصول الرقمية. جميع الحقوق محفوظة.' }}</p>
     </div>
   </div>
 </footer>
-

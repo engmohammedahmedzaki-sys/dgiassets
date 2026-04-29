@@ -9,6 +9,8 @@ interface User {
   fullName: string;
   phoneNumber: string;
   role: string;
+  roleSelected?: boolean;
+  kycStatus?: string;
 }
 
 interface AuthResponse {

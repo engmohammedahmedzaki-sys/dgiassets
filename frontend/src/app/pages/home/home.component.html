@@ -21,7 +21,7 @@
         <span class="typing-wrapper">
           <span class="typing-text">منصة موثوقة</span>
         </span>
-        لبيع وشراء المشاريع الرقمية
+        لبيع وشراء الأصول الرقمية
       </span>
       <span class="badge-glow"></span>
     </div>
@@ -31,7 +31,7 @@
         <span class="word" style="--delay: 0">اشترِ</span>
         <span class="word" style="--delay: 1">أو</span>
         <span class="word" style="--delay: 2">بع</span>
-        <span class="word highlight" style="--delay: 3">مشروعك</span>
+        <span class="word highlight" style="--delay: 3">أصلك</span>
       </span>
       <span class="title-line">
         <span class="word" style="--delay: 4">بأمان</span>
@@ -48,13 +48,13 @@
 
     <div class="hero-actions">
       <button class="hero-btn hero-btn-primary" routerLink="/browse">
-        <span class="btn-text">تصفح المشاريع المتاحة</span>
+        <span class="btn-text">تصفح الأصول المتاحة</span>
         <span class="btn-icon">←</span>
         <span class="btn-glow"></span>
         <span class="btn-shine"></span>
       </button>
       <button class="hero-btn hero-btn-secondary" routerLink="/sell">
-        <span class="btn-text">بيع مشروعك الآن</span>
+        <span class="btn-text">بيع أصلك الآن</span>
         <span class="btn-border"></span>
       </button>
     </div>
@@ -106,7 +106,7 @@
       </div>
       <div class="ticker-item">
         <span class="ticker-icon">🔥</span>
-        <span>مشروع جديد: "تطبيق توصيل" بسعر $28,000</span>
+        <span>أصل جديد متاح للبيع</span>
         <span class="ticker-time">منذ 4 ساعات</span>
       </div>
       <div class="ticker-item success">
@@ -116,7 +116,7 @@
       </div>
       <div class="ticker-item">
         <span class="ticker-icon">📈</span>
-        <span>ارتفاع الطلب على مشاريع SaaS بنسبة 40%</span>
+        <span>ارتفاع الطلب على أصول SaaS بنسبة 40%</span>
         <span class="ticker-time">هذا الأسبوع</span>
       </div>
       <div class="ticker-item success">
@@ -126,7 +126,7 @@
       </div>
       <div class="ticker-item">
         <span class="ticker-icon">🔥</span>
-        <span>مشروع جديد: "تطبيق توصيل" بسعر $28,000</span>
+        <span>أصل جديد متاح للبيع</span>
         <span class="ticker-time">منذ 4 ساعات</span>
       </div>
     </div>
@@ -138,7 +138,7 @@
   <div class="container">
     <div class="section-header-row">
       <div>
-        <h2 class="section-title animate-title">مشاريع مميزة للبيع</h2>
+        <h2 class="section-title animate-title">أصول مميزة للبيع</h2>
         <p class="section-subtitle">أفضل الفرص الاستثمارية المتاحة الآن</p>
       </div>
       <a routerLink="/browse" class="view-all-btn">
@@ -147,152 +147,66 @@
       </a>
     </div>
 
-    <div class="projects-grid">
-      <!-- Project 1 -->
-      <div class="project-card featured">
-        <div class="project-badge pulse">🔥 الأكثر طلباً</div>
+    <!-- Loading state -->
+    <div *ngIf="loading" class="projects-loading">
+      <div class="spinner-home"></div>
+      <p>جارى تحميل الأصول...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && featuredProjects.length === 0" class="projects-empty">
+      <div class="empty-icon">📦</div>
+      <h3>لا توجد أصول متاحة حالياً</h3>
+      <p>كن أول من يضيف أصلاً للبيع على المنصة</p>
+      <a routerLink="/sell" class="btn btn-primary">إضافة أصل للبيع</a>
+    </div>
+
+    <!-- Real Projects Grid -->
+    <div class="projects-grid" *ngIf="!loading && featuredProjects.length > 0">
+      <div class="project-card" *ngFor="let project of featuredProjects; let i = index"
+           [class.featured]="i === 0"
+           (click)="goToProject(project.id)">
+        <div class="project-badge pulse" *ngIf="i === 0">🔥 مميز</div>
         <div class="project-image">
-          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400" alt="متجر إلكتروني" />
+          <img *ngIf="project.mainImage" [src]="project.mainImage" [alt]="project.title" />
+          <div *ngIf="!project.mainImage" class="image-placeholder">
+            <span>{{ project.title?.charAt(0) || '؟' }}</span>
+          </div>
           <div class="image-overlay"></div>
         </div>
         <div class="project-content">
-          <div class="project-category">تجارة إلكترونية</div>
-          <h3 class="project-title">متجر ملابس نسائية</h3>
-          <p class="project-desc">متجر متكامل على Shopify مع 150+ منتج ونظام شحن آلي</p>
+          <div class="project-category">
+            {{ categoryLabel(project.category) }}
+            <span *ngIf="project.owner?.kycStatus === 'verified'" class="seller-verified" title="بائع موثّق">✓ موثّق</span>
+          </div>
+          <h3 class="project-title">{{ project.title }}</h3>
+          <p class="project-desc">{{ project.shortDescription }}</p>
 
           <div class="project-metrics">
-            <div class="metric">
-              <span class="metric-label">الإيرادات الشهرية</span>
-              <span class="metric-value">$8,500</span>
+            <div class="metric" *ngIf="project.monthlyRevenue">
+              <span class="metric-label">الإيرادات/شهر</span>
+              <span class="metric-value">{{ formatPrice(project.monthlyRevenue) }}</span>
             </div>
-            <div class="metric">
-              <span class="metric-label">الربح الصافي</span>
-              <span class="metric-value">$3,200</span>
+            <div class="metric" *ngIf="project.monthlyVisitors">
+              <span class="metric-label">زوار/شهر</span>
+              <span class="metric-value">{{ project.monthlyVisitors | number }}</span>
             </div>
-            <div class="metric">
-              <span class="metric-label">عمر المشروع</span>
-              <span class="metric-value">3 سنوات</span>
+            <div class="metric" *ngIf="project.ageInMonths">
+              <span class="metric-label">العمر</span>
+              <span class="metric-value">{{ project.ageInMonths }} شهر</span>
             </div>
           </div>
 
           <div class="project-footer">
             <div class="project-price">
-              <span class="price-label">السعر المطلوب</span>
-              <span class="price-value">$85,000</span>
-            </div>
-            <div class="project-roi">
-              <span class="roi-badge">العائد: 26x شهري</span>
+              <span class="price-label">السعر</span>
+              <span class="price-value">{{ formatPrice(project.price) }}</span>
             </div>
           </div>
 
           <button class="btn btn-primary btn-full btn-animated">
             <span>عرض التفاصيل</span>
             <span class="btn-arrow">←</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Project 2 -->
-      <div class="project-card">
-        <div class="project-image">
-          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400" alt="SaaS" />
-          <div class="image-overlay"></div>
-        </div>
-        <div class="project-content">
-          <div class="project-category">SaaS</div>
-          <h3 class="project-title">نظام إدارة مطاعم</h3>
-          <p class="project-desc">منصة SaaS لإدارة المطاعم مع 45 عميل نشط</p>
-
-          <div class="project-metrics">
-            <div class="metric">
-              <span class="metric-label">الاشتراكات الشهرية</span>
-              <span class="metric-value">$4,500</span>
-            </div>
-            <div class="metric">
-              <span class="metric-label">معدل النمو</span>
-              <span class="metric-value growth">+15%</span>
-            </div>
-          </div>
-
-          <div class="project-footer">
-            <div class="project-price">
-              <span class="price-label">السعر</span>
-              <span class="price-value">$120,000</span>
-            </div>
-          </div>
-
-          <button class="btn btn-secondary btn-full btn-animated">
-            <span>عرض التفاصيل</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Project 3 -->
-      <div class="project-card">
-        <div class="project-image">
-          <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400" alt="تطبيق" />
-          <div class="image-overlay"></div>
-        </div>
-        <div class="project-content">
-          <div class="project-category">تطبيقات موبايل</div>
-          <h3 class="project-title">تطبيق توصيل طعام</h3>
-          <p class="project-desc">تطبيق iOS و Android مع 5,000+ مستخدم نشط</p>
-
-          <div class="project-metrics">
-            <div class="metric">
-              <span class="metric-label">المستخدمين النشطين</span>
-              <span class="metric-value">5,200</span>
-            </div>
-            <div class="metric">
-              <span class="metric-label">الإيرادات</span>
-              <span class="metric-value">$6,800</span>
-            </div>
-          </div>
-
-          <div class="project-footer">
-            <div class="project-price">
-              <span class="price-label">السعر</span>
-              <span class="price-value">$95,000</span>
-            </div>
-          </div>
-
-          <button class="btn btn-secondary btn-full btn-animated">
-            <span>عرض التفاصيل</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Project 4 -->
-      <div class="project-card">
-        <div class="project-image">
-          <img src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400" alt="موقع محتوى" />
-          <div class="image-overlay"></div>
-        </div>
-        <div class="project-content">
-          <div class="project-category">مواقع محتوى</div>
-          <h3 class="project-title">مدونة تقنية</h3>
-          <p class="project-desc">موقع محتوى تقني مع 100,000 زائر شهرياً</p>
-
-          <div class="project-metrics">
-            <div class="metric">
-              <span class="metric-label">الزوار الشهريين</span>
-              <span class="metric-value">100K</span>
-            </div>
-            <div class="metric">
-              <span class="metric-label">دخل الإعلانات</span>
-              <span class="metric-value">$2,100</span>
-            </div>
-          </div>
-
-          <div class="project-footer">
-            <div class="project-price">
-              <span class="price-label">السعر</span>
-              <span class="price-value">$45,000</span>
-            </div>
-          </div>
-
-          <button class="btn btn-secondary btn-full btn-animated">
-            <span>عرض التفاصيل</span>
           </button>
         </div>
       </div>
@@ -304,45 +218,43 @@
 <section class="categories">
   <div class="container">
     <h2 class="section-title">تصفح حسب الفئة</h2>
-    <p class="section-subtitle">اختر نوع المشروع الذي تبحث عنه</p>
+    <p class="section-subtitle">اختر نوع الأصل الذى تبحث عنه</p>
 
     <div class="categories-grid">
-      <a routerLink="/browse" class="category-card" *ngFor="let cat of categories; let i = index" [style.--delay]="i">
+      <a routerLink="/browse" [queryParams]="{ category: cat.value }" class="category-card" *ngFor="let cat of categories; let i = index" [style.--delay]="i">
         <span class="category-icon">{{ cat.icon }}</span>
         <h3>{{ cat.name }}</h3>
-        <span class="category-count">{{ cat.count }} مشروع</span>
         <span class="category-glow"></span>
       </a>
     </div>
   </div>
 </section>
 
-<!-- Recent Sales -->
-<section class="recent-sales">
+<!-- More Available Projects -->
+<section class="recent-sales" *ngIf="!loading && recentSales.length > 0">
   <div class="container">
     <div class="section-header-row">
       <div>
-        <h2 class="section-title">صفقات تمت مؤخراً</h2>
-        <p class="section-subtitle">إثبات نجاح منصتنا في إتمام الصفقات</p>
+        <h2 class="section-title">المزيد من الأصول المتاحة</h2>
+        <p class="section-subtitle">تصفّح أحدث الأصول المعروضة للبيع</p>
       </div>
+      <a routerLink="/browse" class="view-all-btn">
+        عرض الكل
+        <span class="arrow">←</span>
+      </a>
     </div>
 
     <div class="sales-grid">
-      <div class="sale-card" *ngFor="let sale of recentSales; let i = index" [style.--delay]="i">
-        <div class="sale-icon pulse">✅</div>
+      <div class="sale-card" *ngFor="let sale of recentSales; let i = index"
+           [style.--delay]="i"
+           (click)="goToProject(sale.id)"
+           style="cursor:pointer;">
+        <div class="sale-icon pulse">📦</div>
         <div class="sale-info">
           <h4>{{ sale.title }}</h4>
-          <p>{{ sale.category }}</p>
+          <p>{{ categoryLabel(sale.category) }}</p>
         </div>
-        <div class="sale-price">{{ sale.price }}</div>
-        <div class="sale-date">{{ sale.time }}</div>
-      </div>
-    </div>
-
-    <div class="total-sales-banner">
-      <div class="banner-stat" *ngFor="let stat of salesStats; let i = index" [style.--delay]="i">
-        <span class="banner-value counter">{{ stat.value }}</span>
-        <span class="banner-label">{{ stat.label }}</span>
+        <div class="sale-price">{{ formatPrice(sale.price) }}</div>
       </div>
     </div>
   </div>
@@ -388,28 +300,6 @@
   </div>
 </section>
 
-<!-- Testimonials -->
-<section class="testimonials">
-  <div class="container">
-    <h2 class="section-title">ماذا يقول عملاؤنا؟</h2>
-    <p class="section-subtitle">تجارب حقيقية من مستخدمي المنصة</p>
-
-    <div class="testimonials-grid">
-      <div class="testimonial-card" *ngFor="let testimonial of testimonials; let i = index" [style.--delay]="i">
-        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
-        <p class="testimonial-text">"{{ testimonial.text }}"</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">{{ testimonial.initials }}</div>
-          <div>
-            <h4>{{ testimonial.name }}</h4>
-            <span>{{ testimonial.role }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- CTA Section -->
 <section class="cta">
   <div class="cta-bg">
@@ -430,7 +320,7 @@
           <span class="btn-glow"></span>
         </button>
         <button class="cta-btn cta-btn-secondary" routerLink="/browse">
-          تصفح المشاريع
+          تصفح الأصول
         </button>
       </div>
     </div>

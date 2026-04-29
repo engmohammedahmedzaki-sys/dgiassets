@@ -35,6 +35,16 @@
       </div>
     </div>
 
+    <!-- Commission breakdown (for both buyer + seller) -->
+    <div class="commission-breakdown" *ngIf="deal.commissionAmount && deal.commissionAmount > 0">
+      <h3>📊 تفاصيل التحويل</h3>
+      <div class="row"><span>إجمالى الصفقة</span><strong>{{ deal.finalAmount | number }} ريال</strong></div>
+      <div class="row deduction" *ngIf="isSeller"><span>عمولة المنصة ({{ deal.commissionPercentage }}%)</span><strong>- {{ deal.commissionAmount | number }} ريال</strong></div>
+      <div class="row deduction" *ngIf="isSeller && deal.holdbackAmount && deal.holdbackAmount > 0"><span>مبلغ الحماية المؤجل</span><strong>- {{ deal.holdbackAmount | number }} ريال</strong></div>
+      <div class="row final" *ngIf="isSeller"><span>صافى التحويل للبائع</span><strong>{{ deal.sellerPayout | number }} ريال</strong></div>
+      <div class="row final" *ngIf="isBuyer"><span>المبلغ الذى ستدفعه</span><strong>{{ deal.finalAmount | number }} ريال</strong></div>
+    </div>
+
     <!-- Stepper -->
     <div class="stepper" *ngIf="deal.status !== 'disputed' && deal.status !== 'cancelled' && deal.status !== 'refunded'">
       <div

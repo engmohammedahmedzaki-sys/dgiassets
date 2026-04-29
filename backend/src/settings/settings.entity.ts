@@ -101,6 +101,16 @@ export class Settings {
   @Column({ default: false })
   smtpEnabled: boolean;
 
+  // === Business / Commission ===
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 25.00 })
+  commissionPercentage: number;
+
+  @Column({ type: 'int', default: 3 })
+  inspectionDays: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  holdbackPercentage: number;
+
   @UpdateDateColumn()
   updatedAt: Date;
 }

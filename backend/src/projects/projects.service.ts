@@ -16,7 +16,7 @@ export class ProjectsService {
     const project = this.projectsRepository.create({
       ...createProjectDto,
       ownerId,
-      status: ProjectStatus.ACTIVE,
+      status: ProjectStatus.PENDING,
     } as Partial<Project>);
     return this.projectsRepository.save(project);
   }

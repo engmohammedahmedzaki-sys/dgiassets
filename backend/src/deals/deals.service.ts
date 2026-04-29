@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Deal, DealStatus } from './deal.entity';
 import { Offer, OfferStatus } from '../offers/offer.entity';
 import { PaymentsService } from '../payments/payments.service';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class DealsService {
@@ -18,6 +19,7 @@ export class DealsService {
     @InjectRepository(Offer)
     private offersRepository: Repository<Offer>,
     private paymentsService: PaymentsService,
+    private settingsService: SettingsService,
   ) {}
 
   async createFromOffer(
@@ -47,12 +49,24 @@ export class DealsService {
         ? Number(offer.counterAmount)
         : Number(offer.offerAmount);
 
+    // Calculate commission and payouts from settings
+    const settings = await this.settingsService.getSettings();
+    const commissionPct = Number(settings?.commissionPercentage ?? 25);
+    const holdbackPct = Number(settings?.holdbackPercentage ?? 0);
+    const commissionAmount = Math.round((finalAmount * commissionPct / 100) * 100) / 100;
+    const holdbackAmount = Math.round((finalAmount * holdbackPct / 100) * 100) / 100;
+    const sellerPayout = Math.round((finalAmount - commissionAmount - holdbackAmount) * 100) / 100;
+
     const deal = this.dealsRepository.create({
       offerId,
       projectId: offer.projectId,
       buyerId,
       sellerId: offer.project.ownerId,
       finalAmount,
+      commissionPercentage: commissionPct,
+      commissionAmount,
+      holdbackAmount,
+      sellerPayout,
       status: DealStatus.PAYMENT_PENDING,
     });
 

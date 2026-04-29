@@ -199,7 +199,7 @@ export class SellComponent {
     this.projectsService.createProject(this.projectData).subscribe({
       next: (response) => {
         this.loading = false;
-        alert('تم إضافة المشروع بنجاح!');
+        alert('✅ تم استلام طلبك بنجاح!\n\nالأصل دلوقتى بحالة "بانتظار المراجعة" - سيتم مراجعته من فريق الإدارة خلال 24-48 ساعة، وهتوصلك رسالة بالنتيجة.');
         localStorage.removeItem('project_draft');
         this.router.navigate(['/dashboard']);
       },

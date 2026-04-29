@@ -59,6 +59,18 @@ export class Deal {
   @Column('decimal', { precision: 12, scale: 2 })
   finalAmount: number;
 
+  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  commissionAmount: number;
+
+  @Column('decimal', { precision: 5, scale: 2, default: 25 })
+  commissionPercentage: number;
+
+  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  sellerPayout: number;
+
+  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  holdbackAmount: number;
+
   @Column({
     type: 'text',
     default: DealStatus.INITIATED,

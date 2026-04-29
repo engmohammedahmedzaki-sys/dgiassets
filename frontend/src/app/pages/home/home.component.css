@@ -202,7 +202,10 @@
 }
 
 .title-line {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  justify-content: center;
 }
 
 .word {
@@ -211,6 +214,7 @@
   transform: translateY(30px);
   animation: wordReveal 0.6s ease-out forwards;
   animation-delay: calc(var(--delay) * 0.15s);
+  white-space: nowrap;
 }
 
 @keyframes wordReveal {
@@ -1461,4 +1465,60 @@
   .cta-btn {
     width: 100%;
   }
+}
+
+/* === Real data states === */
+.projects-loading, .projects-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-secondary);
+}
+.spinner-home {
+  width: 56px; height: 56px;
+  border: 4px solid #e0e7ff;
+  border-top-color: #1a3d7a;
+  border-radius: 50%;
+  animation: spin-h 0.9s linear infinite;
+  margin: 0 auto 1.25rem;
+}
+@keyframes spin-h { to { transform: rotate(360deg); } }
+.projects-empty .empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+.projects-empty h3 {
+  color: var(--text-navy);
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+.projects-empty p { margin: 0 0 1.5rem; }
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a3d7a 0%, #3b6cb5 100%);
+  color: #fff;
+  font-size: 4rem;
+  font-weight: 800;
+}
+
+/* Make project cards clickable */
+.project-card { cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.project-card:hover { transform: translateY(-4px); }
+
+.seller-verified {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }

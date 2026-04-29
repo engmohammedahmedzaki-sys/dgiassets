@@ -1,222 +1,162 @@
-<div class="browse-page">
-  <!-- Header -->
-  <div class="browse-header">
+<div class="browse-page" dir="rtl">
+
+  <!-- Mobile filter backdrop -->
+  <div class="filter-backdrop" [class.show]="filtersOpen" (click)="filtersOpen = false"></div>
+
+  <!-- Hero -->
+  <div class="browse-hero">
     <div class="container">
-      <div class="header-content">
-        <div>
-          <h1 class="page-title">تصفح المشاريع المتاحة</h1>
-          <p class="page-subtitle">اكتشف أفضل الفرص الاستثمارية في السوق</p>
-        </div>
-        <div class="header-stats">
-          <div class="stat-item">
-            <span class="stat-number">{{ totalProjects }}</span>
-            <span class="stat-label">مشروع متاح</span>
-          </div>
-        </div>
+      <h1>تصفّح الأصول الرقمية</h1>
+      <p>اكتشف أفضل الأصول الرقمية المعروضة للبيع - مواقع، تطبيقات، متاجر، دومينات، وأكثر</p>
+      <div class="browse-stats">
+        <div class="stat-pill"><strong>{{ totalProjects }}</strong><span>أصل متاح</span></div>
+        <div class="stat-pill" *ngIf="activeFiltersCount > 0"><strong>{{ activeFiltersCount }}</strong><span>فلتر مفعّل</span></div>
       </div>
     </div>
   </div>
 
-  <div class="container">
-    <div class="browse-layout">
-      <!-- Filters Sidebar -->
-      <aside class="filters-sidebar" [class.open]="filtersOpen">
-        <div class="filters-header">
-          <h3>تصفية النتائج</h3>
-          <button class="btn-text" (click)="resetFilters()">إعادة تعيين</button>
+  <div class="container browse-grid">
+
+    <!-- Sidebar Filters -->
+    <aside class="filters-sidebar" [class.open]="filtersOpen">
+      <div class="filters-header">
+        <h3>🔍 الفلاتر</h3>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <button *ngIf="activeFiltersCount > 0" class="reset-btn" (click)="resetFilters()">إعادة تعيين</button>
+          <button class="close-mobile-filters" (click)="filtersOpen = false" aria-label="إغلاق">✕</button>
         </div>
+      </div>
 
-        <!-- Search -->
-        <div class="filter-section">
-          <label class="filter-label">بحث</label>
-          <div class="search-box">
-            <input
-              type="text"
-              [(ngModel)]="filters.search"
-              (input)="onFiltersChange()"
-              placeholder="ابحث عن مشروع..."
-              class="search-input"
-            />
-            <span class="search-icon">🔍</span>
-          </div>
+      <div class="filter-block">
+        <label>بحث</label>
+        <div class="search-wrap">
+          <input type="text" [(ngModel)]="filters.search" (ngModelChange)="onFiltersChange()" placeholder="ابحث باسم الأصل..." class="filter-input" />
+          <span class="search-icon">🔍</span>
         </div>
+      </div>
 
-        <!-- Category -->
-        <div class="filter-section">
-          <label class="filter-label">الفئة</label>
-          <div class="filter-options">
-            <label class="filter-option" *ngFor="let cat of categories">
-              <input
-                type="radio"
-                name="category"
-                [value]="cat.value"
-                [(ngModel)]="filters.category"
-                (change)="onFiltersChange()"
-              />
-              <span class="option-label">
-                <span class="option-icon">{{ cat.icon }}</span>
-                <span>{{ cat.label }}</span>
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Price Range -->
-        <div class="filter-section">
-          <label class="filter-label">نطاق السعر</label>
-          <div class="price-inputs">
-            <input
-              type="number"
-              [(ngModel)]="filters.minPrice"
-              (input)="onFiltersChange()"
-              placeholder="من"
-              class="price-input"
-            />
-            <span class="price-separator">-</span>
-            <input
-              type="number"
-              [(ngModel)]="filters.maxPrice"
-              (input)="onFiltersChange()"
-              placeholder="إلى"
-              class="price-input"
-            />
-          </div>
-          <div class="price-presets">
-            <button
-              *ngFor="let preset of pricePresets"
-              (click)="applyPricePreset(preset)"
-              class="preset-btn"
-            >
-              {{ preset.label }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Sort -->
-        <div class="filter-section">
-          <label class="filter-label">ترتيب حسب</label>
-          <select class="filter-select" [(ngModel)]="sortBy" (change)="onSortChange()">
-            <option value="newest">الأحدث</option>
-            <option value="price-low">السعر: من الأقل للأعلى</option>
-            <option value="price-high">السعر: من الأعلى للأقل</option>
-            <option value="popular">الأكثر مشاهدة</option>
-          </select>
-        </div>
-      </aside>
-
-      <!-- Projects Grid -->
-      <div class="projects-content">
-        <!-- Mobile Filters Toggle -->
-        <button class="mobile-filters-toggle" (click)="filtersOpen = !filtersOpen">
-          <span class="toggle-icon">⚙️</span>
-          <span>تصفية</span>
-          <span class="filters-badge" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
-        </button>
-
-        <!-- Loading State -->
-        <div class="loading-state" *ngIf="loading">
-          <div class="spinner"></div>
-          <p>جاري تحميل المشاريع...</p>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="!loading && projects.length === 0">
-          <div class="empty-icon">📭</div>
-          <h3>لا توجد مشاريع</h3>
-          <p>لم نجد أي مشاريع تطابق معايير البحث</p>
-          <button class="btn btn-primary" (click)="resetFilters()">إعادة تعيين الفلاتر</button>
-        </div>
-
-        <!-- Projects Grid -->
-        <div class="projects-grid" *ngIf="!loading && projects.length > 0">
-          <div class="project-card" *ngFor="let project of projects" (click)="openProject(project.id)">
-            <!-- Featured Badge -->
-            <div class="featured-badge" *ngIf="project.isFeatured">
-              🔥 مميز
-            </div>
-
-            <!-- Image -->
-            <div class="project-image">
-              <img [src]="project.mainImage" [alt]="project.title" />
-              <div class="image-overlay"></div>
-            </div>
-
-            <!-- Content -->
-            <div class="project-content">
-              <!-- Category -->
-              <div class="project-category">{{ getCategoryLabel(project.category) }}</div>
-
-              <!-- Title & Description -->
-              <h3 class="project-title">{{ project.title }}</h3>
-              <p class="project-description">{{ project.shortDescription }}</p>
-
-              <!-- Metrics -->
-              <div class="project-metrics" *ngIf="project.monthlyRevenue || project.monthlyVisitors">
-                <div class="metric" *ngIf="project.monthlyRevenue">
-                  <span class="metric-icon">💰</span>
-                  <div>
-                    <span class="metric-value">${{ project.monthlyRevenue | number }}</span>
-                    <span class="metric-label">إيرادات شهرية</span>
-                  </div>
-                </div>
-                <div class="metric" *ngIf="project.monthlyVisitors">
-                  <span class="metric-icon">👥</span>
-                  <div>
-                    <span class="metric-value">{{ project.monthlyVisitors | number }}</span>
-                    <span class="metric-label">زائر شهرياً</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="project-footer">
-                <div class="project-price">
-                  <span class="price-label">السعر</span>
-                  <span class="price-value">${{ project.price | number }}</span>
-                </div>
-                <div class="project-stats">
-                  <span class="stat">
-                    <span class="stat-icon">👁️</span>
-                    {{ project.viewCount }}
-                  </span>
-                  <span class="stat" *ngIf="project.offerCount > 0">
-                    <span class="stat-icon">💼</span>
-                    {{ project.offerCount }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination" *ngIf="!loading && totalPages > 1">
-          <button
-            class="pagination-btn"
-            [disabled]="currentPage === 1"
-            (click)="goToPage(currentPage - 1)"
-          >
-            →
-          </button>
-
-          <button
-            *ngFor="let page of getPageNumbers()"
-            class="pagination-btn"
-            [class.active]="page === currentPage"
-            (click)="goToPage(page)"
-          >
-            {{ page }}
-          </button>
-
-          <button
-            class="pagination-btn"
-            [disabled]="currentPage === totalPages"
-            (click)="goToPage(currentPage + 1)"
-          >
-            ←
+      <div class="filter-block">
+        <label>الفئة</label>
+        <div class="category-list">
+          <button *ngFor="let cat of categories" class="cat-option" [class.active]="filters.category === cat.value" (click)="filters.category = cat.value; onFiltersChange()">
+            <span class="cat-icon">{{ cat.icon }}</span>
+            <span class="cat-label">{{ cat.label }}</span>
           </button>
         </div>
       </div>
-    </div>
+
+      <div class="filter-block">
+        <label>نطاق السعر (ر.س)</label>
+        <div class="price-inputs">
+          <input type="number" [(ngModel)]="filters.minPrice" (ngModelChange)="onFiltersChange()" placeholder="من" class="filter-input small" />
+          <span>—</span>
+          <input type="number" [(ngModel)]="filters.maxPrice" (ngModelChange)="onFiltersChange()" placeholder="إلى" class="filter-input small" />
+        </div>
+        <div class="price-presets">
+          <button *ngFor="let preset of pricePresets" class="preset-btn" (click)="applyPricePreset(preset)">{{ preset.label }}</button>
+        </div>
+      </div>
+
+      <div class="filter-block">
+        <label>ترتيب حسب</label>
+        <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" class="filter-input">
+          <option value="newest">الأحدث</option>
+          <option value="oldest">الأقدم</option>
+          <option value="price_low">السعر: الأقل أولاً</option>
+          <option value="price_high">السعر: الأعلى أولاً</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="results-main">
+
+      <!-- Toolbar: view modes + result count + sort -->
+      <div class="results-toolbar">
+        <button class="mobile-filter-toggle" (click)="filtersOpen = !filtersOpen">
+          🔍 فلاتر <span *ngIf="activeFiltersCount > 0">({{ activeFiltersCount }})</span>
+        </button>
+
+        <div class="results-count">
+          <span class="count-num">{{ totalProjects }}</span>
+          <span class="count-label">أصل</span>
+        </div>
+
+        <div class="view-modes">
+          <button class="view-btn-mode" [class.active]="viewMode === 'grid-3'" (click)="viewMode = 'grid-3'" title="عرض 3 أعمدة">
+            <span>▦</span>
+          </button>
+          <button class="view-btn-mode" [class.active]="viewMode === 'grid-2'" (click)="viewMode = 'grid-2'" title="عرض 2 أعمدة">
+            <span>▥</span>
+          </button>
+          <button class="view-btn-mode" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="عرض قائمة">
+            <span>≡</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>جارى تحميل الأصول...</p>
+      </div>
+
+      <div *ngIf="!loading && projects.length === 0" class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h2>لا توجد أصول مطابقة</h2>
+        <p>جرّب تغيير الفلاتر أو البحث بكلمات مختلفة</p>
+        <button class="primary-btn" (click)="resetFilters()">إعادة تعيين الفلاتر</button>
+      </div>
+
+      <div *ngIf="!loading && projects.length > 0" class="assets-grid" [ngClass]="'view-' + viewMode">
+        <div *ngFor="let project of projects" class="asset-card" (click)="openProject(project.id)">
+
+          <div class="asset-image">
+            <img *ngIf="project.mainImage" [src]="project.mainImage" [alt]="project.title" />
+            <div *ngIf="!project.mainImage" class="asset-placeholder"><span>{{ project.title.charAt(0) }}</span></div>
+            <div class="asset-badges">
+              <span *ngIf="project.isFeatured" class="badge featured">⭐ مميز</span>
+              <span *ngIf="project.owner?.kycStatus === 'verified'" class="badge verified">✓ موثّق</span>
+              <span *ngIf="project.requiresNda" class="badge nda">🔒 NDA</span>
+            </div>
+          </div>
+
+          <div class="asset-body">
+            <div class="asset-category">{{ getCategoryLabel(project.category) }}</div>
+            <h3 class="asset-title">{{ project.title }}</h3>
+            <p class="asset-desc">{{ project.shortDescription }}</p>
+
+            <div class="asset-metrics" *ngIf="project.monthlyRevenue || project.monthlyVisitors || project.ageInMonths">
+              <div *ngIf="project.monthlyRevenue" class="metric">
+                <span class="metric-label">إيرادات/شهر</span>
+                <span class="metric-value">{{ project.monthlyRevenue | number }}</span>
+              </div>
+              <div *ngIf="project.monthlyVisitors" class="metric">
+                <span class="metric-label">زوار/شهر</span>
+                <span class="metric-value">{{ project.monthlyVisitors | number }}</span>
+              </div>
+              <div *ngIf="project.ageInMonths" class="metric">
+                <span class="metric-label">العمر</span>
+                <span class="metric-value">{{ project.ageInMonths }}ش</span>
+              </div>
+            </div>
+
+            <div class="asset-footer">
+              <div class="asset-price">
+                <span class="price-label">السعر</span>
+                <span class="price-value">{{ project.price | number }} ر.س</span>
+              </div>
+              <button class="view-btn">عرض ←</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && projects.length > 0 && totalPages > 1" class="pagination">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">←</button>
+        <button *ngFor="let page of getPageNumbers()" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">→</button>
+      </div>
+
+    </main>
   </div>
 </div>

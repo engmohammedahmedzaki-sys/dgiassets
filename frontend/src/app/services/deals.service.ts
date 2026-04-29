@@ -10,6 +10,10 @@ export interface Deal {
   buyerId: string;
   sellerId: string;
   finalAmount: number;
+  commissionAmount?: number;
+  commissionPercentage?: number;
+  sellerPayout?: number;
+  holdbackAmount?: number;
   status: DealStatus;
   inspectionDeadline: string | null;
   transferNotes: string | null;

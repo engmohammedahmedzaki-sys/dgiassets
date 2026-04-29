@@ -124,12 +124,50 @@
           <div class="seller-avatar">{{ project.owner.fullName.substring(0,1) }}</div>
           <div class="seller-details">
             <span class="name">{{ project.owner.fullName }}</span>
-            <span class="verified-status">✅ هويته موثقة</span>
+            <span class="verified-status" *ngIf="isOwnerVerified">✅ هويته موثّقة</span>
+            <span class="verified-status" *ngIf="!isOwnerVerified" style="color:#94a3b8;">⏳ غير موثّق</span>
           </div>
         </div>
-        <button class="btn-view-profile">عرض ملف البائع</button>
       </div>
     </aside>
+  </div>
+
+  <!-- NDA Banner -->
+  <div *ngIf="isNdaMasked && !ndaSigned" class="nda-banner glass-card">
+    <div>
+      <h3>🔒 بعض البيانات الحساسة محمية بـ NDA</h3>
+      <p>الرابط، الإيرادات، الأرباح، وعدد الزوار غير ظاهرة. وقّع اتفاقية عدم إفصاح للوصول الكامل.</p>
+    </div>
+    <button class="glass-btn" (click)="openNdaModal()">📝 توقيع NDA</button>
+  </div>
+</div>
+
+<!-- NDA Modal -->
+<div *ngIf="showNdaModal" class="modal-overlay" (click)="showNdaModal = false">
+  <div class="modal-content glass-card" (click)="$event.stopPropagation()" style="max-width:600px;">
+    <div class="modal-header">
+      <h3>📝 اتفاقية عدم الإفصاح (NDA)</h3>
+      <button class="close-btn" (click)="showNdaModal = false">×</button>
+    </div>
+    <div class="modal-form" style="text-align:right;line-height:1.8;color:#475569;font-size:0.92rem;">
+      <p>بقبولك هذه الاتفاقية، فإنك توافق على:</p>
+      <ol style="padding-right:1.25rem;">
+        <li>عدم إفشاء أو نسخ أو نشر أى من البيانات السرية المتعلقة بهذا الأصل (الإيرادات، الزوار، الروابط، البيانات المالية).</li>
+        <li>استخدام هذه البيانات فقط لتقييم إمكانية الشراء.</li>
+        <li>حذف أى نسخ من البيانات إذا لم تتم الصفقة خلال 30 يوم.</li>
+        <li>الالتزام بالسرية الكاملة لمدة سنتين من تاريخ التوقيع.</li>
+        <li>أن أى مخالفة تخوّل البائع/المنصة المطالبة بتعويضات قانونية.</li>
+      </ol>
+      <p style="background:#fef3c7;padding:0.75rem;border-radius:8px;color:#92400e;font-size:0.85rem;">
+        ⚠️ التوقيع ملزم قانونياً. سيتم تسجيل وقت التوقيع وعنوان IP الخاص بك.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="showNdaModal = false">إلغاء</button>
+      <button class="glass-btn" [disabled]="ndaSigning" (click)="signNda()">
+        {{ ndaSigning ? 'جارى التوقيع...' : '✓ أوافق وأوقّع' }}
+      </button>
+    </div>
   </div>
 </div>
 

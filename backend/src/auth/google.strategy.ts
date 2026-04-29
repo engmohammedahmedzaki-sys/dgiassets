@@ -39,7 +39,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         googleId,
         isEmailVerified: true,
         role: 'buyer' as any,
-      });
+        roleSelected: false,
+      } as any);
     } else if (!user.googleId) {
       await this.usersService.update(user.id, { googleId } as any);
     }

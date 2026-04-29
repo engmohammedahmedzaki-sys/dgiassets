@@ -7,6 +7,8 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  phoneNumber?: string;
+  whatsappNumber?: string;
   role: 'admin' | 'seller' | 'buyer';
   kycStatus: 'unverified' | 'pending' | 'verified';
   isActive: boolean;
@@ -35,5 +37,18 @@ export class UsersService {
 
   toggleStatus(id: string): Observable<User> {
     return this.http.patch<User>(`${this.apiUrl}/${id}/toggle-status`, {});
+  }
+
+  // ==== Profile (current user) ====
+  getMe(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`);
+  }
+
+  updateMe(data: { fullName?: string; phoneNumber?: string; whatsappNumber?: string }): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/me`, data);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/me/password`, { currentPassword, newPassword });
   }
 }

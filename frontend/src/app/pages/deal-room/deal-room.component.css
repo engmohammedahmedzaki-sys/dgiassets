@@ -217,3 +217,32 @@
 .btn-success:hover:not(:disabled) { background: #059669; }
 .btn-danger { background: #ef4444; color: #fff; }
 .btn-danger:hover:not(:disabled) { background: #dc2626; }
+
+.commission-breakdown {
+  background: linear-gradient(135deg, rgba(26, 61, 122, 0.05), rgba(96, 165, 250, 0.04));
+  border: 1.5px solid rgba(26, 61, 122, 0.15);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.commission-breakdown h3 {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+  color: #1a3d7a;
+}
+.commission-breakdown .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: #475569;
+  font-size: 0.92rem;
+}
+.commission-breakdown .row.deduction strong { color: #dc2626; }
+.commission-breakdown .row.final {
+  border-top: 1.5px dashed rgba(26, 61, 122, 0.2);
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.commission-breakdown .row.final strong { color: #10b981; font-size: 1.1rem; }

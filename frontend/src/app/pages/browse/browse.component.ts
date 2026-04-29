@@ -31,6 +31,7 @@ export class BrowseComponent implements OnInit {
   sortBy = 'newest';
   filtersOpen = false;
   selectedProject: Project | null = null;
+  viewMode: 'grid-3' | 'grid-2' | 'list' = 'grid-3';
 
   categories = [
     { value: '', label: 'الكل', icon: '📂' },

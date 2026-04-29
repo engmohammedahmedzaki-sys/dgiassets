@@ -42,6 +42,9 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
+  @Column({ default: true })
+  roleSelected: boolean;
+
   @Column({ type: 'text', nullable: true })
   emailVerificationCode: string | null;
 

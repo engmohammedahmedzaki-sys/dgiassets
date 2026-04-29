@@ -16,6 +16,7 @@ import { DealsModule } from './deals/deals.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { KycModule } from './kyc/kyc.module';
+import { NdaModule } from './nda/nda.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { KycModule } from './kyc/kyc.module';
     ChatModule,
     NotificationsModule,
     KycModule,
+    NdaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

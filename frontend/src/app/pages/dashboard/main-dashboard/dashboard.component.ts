@@ -8,6 +8,9 @@ import { SettingsService, SiteSettings, IntegrationSettings } from '../../../ser
 import { UsersService, User } from '../../../services/users.service';
 import { DealsService, Deal } from '../../../services/deals.service';
 import { AdminService, AdminStats } from '../../../services/admin.service';
+import { OffersService, Offer } from '../../../services/offers.service';
+import { ProjectsService, Project } from '../../../services/projects.service';
+import { KycService, KycDocument, KycDocumentType } from '../../../services/kyc.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -44,6 +47,46 @@ export class DashboardComponent implements OnInit {
   deals: Deal[] = [];
   dealsLoading = false;
 
+  // My Offers (buyer = sent, seller = received)
+  myOffers: Offer[] = [];
+  offersLoading = false;
+
+  // My Projects/Listings (seller)
+  myProjects: Project[] = [];
+  myProjectsLoading = false;
+
+  // Admin: All Projects
+  allProjects: Project[] = [];
+  allProjectsLoading = false;
+  projectsFilter: 'all' | 'pending' | 'active' | 'sold' | 'rejected' = 'all';
+
+  // Profile Settings
+  profile: { fullName: string; email: string; phoneNumber: string; whatsappNumber: string } = {
+    fullName: '', email: '', phoneNumber: '', whatsappNumber: '',
+  };
+  profileLoading = false;
+  profileSaving = false;
+  profileSuccess = '';
+  profileError = '';
+
+  passwords = { current: '', new: '', confirm: '' };
+  passwordSaving = false;
+  passwordSuccess = '';
+  passwordError = '';
+
+  // KYC
+  myKycDocs: KycDocument[] = [];
+  pendingKycDocs: KycDocument[] = [];
+  kycLoading = false;
+  kycSaving = false;
+  kycError = '';
+  kycSuccess = '';
+  kycForm: { documentType: KycDocumentType; frontFile: File | null; backFile: File | null } = {
+    documentType: 'national_id',
+    frontFile: null,
+    backFile: null,
+  };
+
   // User Management
   users: User[] = [];
   usersLoading = false;
@@ -63,7 +106,10 @@ export class DashboardComponent implements OnInit {
     private settingsService: SettingsService,
     private usersService: UsersService,
     private dealsService: DealsService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private offersService: OffersService,
+    private projectsService: ProjectsService,
+    private kycService: KycService,
   ) {}
 
   ngOnInit() {
@@ -71,13 +117,100 @@ export class DashboardComponent implements OnInit {
       if (user) {
         this.userRole = user.role;
         this.buildMenu();
-        if (user.role === 'admin') this.loadAdminStats();
+        // Auto-load overview data based on role
+        if (user.role === 'admin') {
+          this.loadAdminStats();
+        } else {
+          this.loadOverviewForUser();
+        }
       }
     });
 
     this.settingsService.settings$.subscribe(settings => {
       this.siteSettings = settings ? { ...settings } : null;
     });
+  }
+
+  loadOverviewForUser() {
+    // For buyer/seller: load deals + offers in parallel
+    this.loadDeals();
+    if (this.userRole === 'seller') {
+      this.loadMyProjects();
+      this.loadMyOffers('received');
+    } else {
+      this.loadMyOffers('sent');
+    }
+  }
+
+  loadMyOffers(type: 'sent' | 'received') {
+    this.offersLoading = true;
+    this.offersService.getMyOffers(type).subscribe({
+      next: (offers) => {
+        this.myOffers = offers;
+        this.offersLoading = false;
+      },
+      error: () => { this.offersLoading = false; },
+    });
+  }
+
+  loadMyProjects() {
+    this.myProjectsLoading = true;
+    this.projectsService.getMyProjects().subscribe({
+      next: (projects) => {
+        this.myProjects = projects;
+        this.myProjectsLoading = false;
+      },
+      error: () => { this.myProjectsLoading = false; },
+    });
+  }
+
+  acceptOffer(offer: Offer) {
+    if (!confirm(`قبول عرض ${offer.offerAmount} ريال على "${offer.project?.title}"؟`)) return;
+    this.offersService.acceptOffer(offer.id).subscribe({
+      next: () => this.loadMyOffers('received'),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  rejectOffer(offer: Offer) {
+    const reason = prompt('سبب الرفض:');
+    if (!reason) return;
+    this.offersService.rejectOffer(offer.id, reason).subscribe({
+      next: () => this.loadMyOffers('received'),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  withdrawOffer(offer: Offer) {
+    if (!confirm('هل أنت متأكد من سحب العرض؟')) return;
+    this.offersService.withdrawOffer(offer.id).subscribe({
+      next: () => this.loadMyOffers('sent'),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  offerStatusLabel(status: string) {
+    return this.offersService.statusLabel(status);
+  }
+
+  // Helpers for buyer/seller overview cards
+  get pendingOffersCount(): number {
+    return this.myOffers.filter(o => o.status === 'pending').length;
+  }
+  get acceptedOffersCount(): number {
+    return this.myOffers.filter(o => o.status === 'accepted').length;
+  }
+  get activeDealsCount(): number {
+    return this.deals.filter(d => !['completed', 'cancelled', 'refunded'].includes(d.status)).length;
+  }
+  get completedDealsCount(): number {
+    return this.deals.filter(d => d.status === 'completed').length;
+  }
+  get activeListingsCount(): number {
+    return this.myProjects.filter(p => p.status === 'active').length;
+  }
+  get pendingListingsCount(): number {
+    return this.myProjects.filter(p => p.status === 'pending').length;
   }
 
   loadAdminStats() {
@@ -157,6 +290,204 @@ export class DashboardComponent implements OnInit {
     if (tabId === 'users' && this.userRole === 'admin') this.loadUsers();
     if (tabId === 'deals') this.loadDeals();
     if (tabId === 'integrations' && this.userRole === 'admin') this.loadIntegrations();
+    if (tabId === 'my-offers') this.loadMyOffers('sent');
+    if (tabId === 'offers' && this.userRole === 'seller') this.loadMyOffers('received');
+    if (tabId === 'my-listings' && this.userRole === 'seller') this.loadMyProjects();
+    if (tabId === 'purchases' || tabId === 'favorites') this.loadDeals();
+    if (tabId === 'projects' && this.userRole === 'admin') this.loadAllProjects();
+    if (tabId === 'profile-settings') this.loadProfile();
+    if (tabId === 'kyc') this.loadKyc();
+  }
+
+  // ===== KYC =====
+  loadKyc() {
+    this.kycLoading = true;
+    if (this.userRole === 'admin') {
+      this.kycService.getPendingDocuments().subscribe({
+        next: (docs) => { this.pendingKycDocs = docs; this.kycLoading = false; },
+        error: () => { this.kycLoading = false; },
+      });
+    } else {
+      this.kycService.getMyDocuments().subscribe({
+        next: (docs) => { this.myKycDocs = docs; this.kycLoading = false; },
+        error: () => { this.kycLoading = false; },
+      });
+    }
+  }
+
+  onKycFileSelect(event: Event, side: 'front' | 'back') {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      if (side === 'front') this.kycForm.frontFile = input.files[0];
+      else this.kycForm.backFile = input.files[0];
+    }
+  }
+
+  submitKyc() {
+    this.kycError = '';
+    this.kycSuccess = '';
+    if (!this.kycForm.frontFile) {
+      this.kycError = 'يرجى رفع صورة الوثيقة (الوجه الأمامى)';
+      return;
+    }
+    this.kycSaving = true;
+    this.kycService.submitDocument(
+      this.kycForm.documentType,
+      this.kycForm.frontFile,
+      this.kycForm.backFile || undefined,
+    ).subscribe({
+      next: () => {
+        this.kycSaving = false;
+        this.kycSuccess = '✅ تم رفع الوثيقة بنجاح. سيتم مراجعتها خلال 24-48 ساعة.';
+        this.kycForm = { documentType: 'national_id', frontFile: null, backFile: null };
+        this.loadKyc();
+      },
+      error: (e) => {
+        this.kycSaving = false;
+        this.kycError = e.error?.message || 'فشل رفع الوثيقة';
+      },
+    });
+  }
+
+  approveKyc(doc: KycDocument) {
+    if (!confirm(`الموافقة على توثيق ${doc.user?.fullName || doc.userId}؟`)) return;
+    this.kycService.approveDocument(doc.id).subscribe({
+      next: () => this.loadKyc(),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  rejectKyc(doc: KycDocument) {
+    const reason = prompt('سبب الرفض:');
+    if (!reason) return;
+    this.kycService.rejectDocument(doc.id, reason).subscribe({
+      next: () => this.loadKyc(),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  kycDocTypeLabel(type: string) { return this.kycService.documentTypeLabel(type); }
+  kycStatusLabel(status: string) { return this.kycService.statusLabel(status); }
+
+  get hasPendingKyc(): boolean {
+    return this.myKycDocs.some(d => d.status === 'pending');
+  }
+  get hasApprovedKyc(): boolean {
+    return this.myKycDocs.some(d => d.status === 'approved');
+  }
+
+  loadProfile() {
+    this.profileLoading = true;
+    this.usersService.getMe().subscribe({
+      next: (user) => {
+        this.profile = {
+          fullName: user.fullName || '',
+          email: user.email || '',
+          phoneNumber: user.phoneNumber || '',
+          whatsappNumber: user.whatsappNumber || '',
+        };
+        this.profileLoading = false;
+      },
+      error: () => { this.profileLoading = false; },
+    });
+  }
+
+  saveProfile() {
+    this.profileSaving = true;
+    this.profileSuccess = '';
+    this.profileError = '';
+    this.usersService.updateMe({
+      fullName: this.profile.fullName,
+      phoneNumber: this.profile.phoneNumber,
+      whatsappNumber: this.profile.whatsappNumber,
+    }).subscribe({
+      next: () => {
+        this.profileSaving = false;
+        this.profileSuccess = '✅ تم حفظ البيانات بنجاح';
+        setTimeout(() => this.profileSuccess = '', 4000);
+      },
+      error: (e) => {
+        this.profileSaving = false;
+        this.profileError = e.error?.message || 'حدث خطأ';
+      },
+    });
+  }
+
+  changePassword() {
+    this.passwordSuccess = '';
+    this.passwordError = '';
+    if (this.passwords.new !== this.passwords.confirm) {
+      this.passwordError = 'كلمتا المرور غير متطابقتين';
+      return;
+    }
+    if (this.passwords.new.length < 6) {
+      this.passwordError = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      return;
+    }
+    this.passwordSaving = true;
+    this.usersService.changePassword(this.passwords.current, this.passwords.new).subscribe({
+      next: () => {
+        this.passwordSaving = false;
+        this.passwordSuccess = '✅ تم تغيير كلمة المرور بنجاح';
+        this.passwords = { current: '', new: '', confirm: '' };
+        setTimeout(() => this.passwordSuccess = '', 4000);
+      },
+      error: (e) => {
+        this.passwordSaving = false;
+        this.passwordError = e.error?.message || 'حدث خطأ';
+      },
+    });
+  }
+
+  loadAllProjects() {
+    this.allProjectsLoading = true;
+    this.adminService.getAllProjects().subscribe({
+      next: (res: any) => {
+        this.allProjects = res.projects || [];
+        this.allProjectsLoading = false;
+      },
+      error: () => { this.allProjectsLoading = false; },
+    });
+  }
+
+  get filteredAdminProjects(): Project[] {
+    if (this.projectsFilter === 'all') return this.allProjects;
+    return this.allProjects.filter(p => p.status === this.projectsFilter);
+  }
+
+  approveAdminProject(project: Project) {
+    if (!confirm(`الموافقة على نشر "${project.title}"؟`)) return;
+    this.adminService.approveProject(project.id).subscribe({
+      next: () => this.loadAllProjects(),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  rejectAdminProject(project: Project) {
+    if (!confirm(`رفض "${project.title}"؟ سيتم حذفه نهائياً.`)) return;
+    this.adminService.rejectProject(project.id).subscribe({
+      next: () => this.loadAllProjects(),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  deleteAdminProject(project: Project) {
+    if (!confirm(`حذف "${project.title}" نهائياً؟`)) return;
+    this.adminService.deleteProject(project.id).subscribe({
+      next: () => this.loadAllProjects(),
+      error: (e) => alert(e.error?.message || 'حدث خطأ'),
+    });
+  }
+
+  projectStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      draft: 'مسودة',
+      pending: 'بانتظار المراجعة',
+      active: 'نشط',
+      sold: 'مباع',
+      rejected: 'مرفوض',
+    };
+    return labels[status] || status;
   }
 
   loadDeals() {

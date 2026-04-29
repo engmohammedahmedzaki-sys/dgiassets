@@ -32,6 +32,12 @@ export class AuthController {
     return user;
   }
 
+  @Post('select-role')
+  @UseGuards(JwtAuthGuard)
+  async selectRole(@Body('role') role: 'buyer' | 'seller', @Request() req: any) {
+    return this.authService.selectRole(req.user.id, role);
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleAuth() {

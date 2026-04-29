@@ -35,6 +35,7 @@ export interface Project {
     id: string;
     fullName: string;
     email: string;
+    kycStatus?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -79,6 +80,10 @@ export class ProjectsService {
 
   getProject(id: string): Observable<Project> {
     return this.http.get<Project>(`${this.apiUrl}/${id}`);
+  }
+
+  getMyProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/owner/my-projects`);
   }
 
   createProject(project: any): Observable<Project> {

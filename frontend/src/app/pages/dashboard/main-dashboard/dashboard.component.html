@@ -96,21 +96,366 @@
           </div>
         </ng-container>
 
-        <!-- Non-admin fallback -->
-        <div *ngIf="userRole !== 'admin'" class="glass-cards-grid">
+        <!-- Buyer Overview -->
+        <div *ngIf="userRole === 'buyer'" class="glass-cards-grid">
           <div class="glass-card stat-card">
-            <h3>عروضى النشطة</h3>
-            <p class="stat-value">—</p>
+            <h3>📝 عروضى</h3>
+            <p class="stat-value">{{ myOffers.length }}</p>
+            <small>{{ pendingOffersCount }} قيد الانتظار · {{ acceptedOffersCount }} مقبول</small>
           </div>
           <div class="glass-card stat-card">
-            <h3>صفقاتى الجارية</h3>
-            <p class="stat-value">—</p>
+            <h3>🤝 صفقاتى الجارية</h3>
+            <p class="stat-value">{{ activeDealsCount }}</p>
+            <small>{{ completedDealsCount }} مكتملة</small>
           </div>
-          <div class="glass-card stat-card">
-            <h3>إشعارات</h3>
-            <p class="stat-value">—</p>
+          <div class="glass-card stat-card highlight">
+            <h3>🛒 ابدأ التسوق</h3>
+            <p class="stat-value" style="font-size: 1.1rem;">تصفّح الأصول المتاحة</p>
+            <a routerLink="/browse" class="btn btn-primary" style="margin-top: 0.75rem; padding: 0.5rem 1rem; display:inline-block;">تصفّح الآن ←</a>
           </div>
         </div>
+
+        <!-- Seller Overview -->
+        <div *ngIf="userRole === 'seller'" class="glass-cards-grid">
+          <div class="glass-card stat-card">
+            <h3>💼 أصولى المعروضة</h3>
+            <p class="stat-value">{{ myProjects.length }}</p>
+            <small>{{ activeListingsCount }} نشط · {{ pendingListingsCount }} قيد المراجعة</small>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>📨 عروض مستلمة</h3>
+            <p class="stat-value">{{ myOffers.length }}</p>
+            <small>{{ pendingOffersCount }} تحتاج ردك</small>
+          </div>
+          <div class="glass-card stat-card">
+            <h3>🤝 صفقاتى الجارية</h3>
+            <p class="stat-value">{{ activeDealsCount }}</p>
+            <small>{{ completedDealsCount }} مكتملة</small>
+          </div>
+          <div class="glass-card stat-card highlight">
+            <h3>➕ بيع أصل جديد</h3>
+            <p class="stat-value" style="font-size: 1.1rem;">اعرض أصلك للبيع</p>
+            <a routerLink="/sell" class="btn btn-primary" style="margin-top: 0.75rem; padding: 0.5rem 1rem; display:inline-block;">إضافة أصل ←</a>
+          </div>
+        </div>
+
+        <!-- Quick Actions for buyer/seller -->
+        <div *ngIf="userRole !== 'admin' && (myOffers.length > 0 || deals.length > 0)" class="glass-card" style="margin-top:1.5rem;padding:1.5rem;">
+          <h3 style="margin:0 0 1rem;">⚡ إجراءات سريعة</h3>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button class="action-btn" (click)="onTabSelect('my-offers')" *ngIf="userRole === 'buyer'">عروضى ({{ myOffers.length }})</button>
+            <button class="action-btn" (click)="onTabSelect('offers')" *ngIf="userRole === 'seller'">العروض المستلمة ({{ myOffers.length }})</button>
+            <button class="action-btn" (click)="onTabSelect('my-listings')" *ngIf="userRole === 'seller'">أصولى ({{ myProjects.length }})</button>
+            <button class="action-btn" (click)="onTabSelect('deals')">الصفقات ({{ deals.length }})</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== BUYER: My Offers ========== -->
+      <div *ngIf="selectedTab === 'my-offers' && userRole === 'buyer'" class="fade-in">
+        <div class="section-header">
+          <h2>📝 عروضى المُقدّمة</h2>
+          <p>كل العروض اللى قدّمتها على الأصول المعروضة.</p>
+        </div>
+
+        <div *ngIf="offersLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <div *ngIf="!offersLoading && myOffers.length === 0" class="glass-card empty-state">
+          <h3>لم تقدّم أى عروض بعد</h3>
+          <p>تصفّح الأصول وقدّم عرضك الأول!</p>
+          <a routerLink="/browse" class="btn-save glass-btn">تصفّح الأصول</a>
+        </div>
+
+        <div *ngIf="!offersLoading && myOffers.length > 0" class="glass-card table-container">
+          <table class="glass-table">
+            <thead><tr><th>الأصل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let offer of myOffers">
+                <td>{{ offer.project?.title || '—' }}</td>
+                <td>{{ offer.offerAmount | number }} ريال</td>
+                <td><span class="status-badge">{{ offerStatusLabel(offer.status) }}</span></td>
+                <td>{{ offer.createdAt | date:'shortDate' }}</td>
+                <td>
+                  <button *ngIf="offer.status === 'pending'" class="action-btn" (click)="withdrawOffer(offer)">سحب</button>
+                  <a *ngIf="offer.status === 'accepted'" [routerLink]="['/projects', offer.projectId]" class="action-btn">إكمال الدفع ←</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== SELLER: Received Offers ========== -->
+      <div *ngIf="selectedTab === 'offers' && userRole === 'seller'" class="fade-in">
+        <div class="section-header">
+          <h2>📨 العروض المستلمة</h2>
+          <p>عروض المشترين على أصولك.</p>
+        </div>
+
+        <div *ngIf="offersLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <div *ngIf="!offersLoading && myOffers.length === 0" class="glass-card empty-state">
+          <h3>لم تستلم أى عروض بعد</h3>
+          <p>أضف أصلاً وانتظر العروض من المشترين.</p>
+        </div>
+
+        <div *ngIf="!offersLoading && myOffers.length > 0" class="glass-card table-container">
+          <table class="glass-table">
+            <thead><tr><th>الأصل</th><th>المشترى</th><th>المبلغ</th><th>الحالة</th><th>الإجراء</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let offer of myOffers">
+                <td>{{ offer.project?.title || '—' }}</td>
+                <td>{{ offer.buyer?.fullName || '—' }}</td>
+                <td>{{ offer.offerAmount | number }} ريال</td>
+                <td><span class="status-badge">{{ offerStatusLabel(offer.status) }}</span></td>
+                <td *ngIf="offer.status === 'pending'">
+                  <button class="action-btn" style="background:#10b981;color:#fff;border-color:#10b981;margin-left:0.5rem;" (click)="acceptOffer(offer)">قبول</button>
+                  <button class="action-btn" style="background:#ef4444;color:#fff;border-color:#ef4444;" (click)="rejectOffer(offer)">رفض</button>
+                </td>
+                <td *ngIf="offer.status !== 'pending'">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== SELLER: My Listings ========== -->
+      <div *ngIf="selectedTab === 'my-listings' && userRole === 'seller'" class="fade-in">
+        <div class="section-header">
+          <div class="header-with-actions">
+            <div>
+              <h2>💼 أصولى المعروضة</h2>
+              <p>كل الأصول اللى عرضتها للبيع.</p>
+            </div>
+            <a routerLink="/sell" class="btn-add-user glass-btn">➕ إضافة أصل جديد</a>
+          </div>
+        </div>
+
+        <div *ngIf="myProjectsLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <div *ngIf="!myProjectsLoading && myProjects.length === 0" class="glass-card empty-state">
+          <h3>لم تضف أى أصل بعد</h3>
+          <p>ابدأ بإضافة أصلك الأول للبيع.</p>
+          <a routerLink="/sell" class="btn-save glass-btn">إضافة أصل</a>
+        </div>
+
+        <div *ngIf="!myProjectsLoading && myProjects.length > 0" class="glass-card table-container">
+          <table class="glass-table">
+            <thead><tr><th>العنوان</th><th>الفئة</th><th>السعر</th><th>الحالة</th><th>المشاهدات</th><th>الإجراء</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let project of myProjects">
+                <td>{{ project.title }}</td>
+                <td>{{ project.category }}</td>
+                <td>{{ project.price | number }} ريال</td>
+                <td><span class="status-badge">{{ project.status }}</span></td>
+                <td>{{ project.viewCount || 0 }}</td>
+                <td>
+                  <a [routerLink]="['/projects', project.id]" class="action-btn">عرض ←</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== Purchases (Buyer completed deals) ========== -->
+      <div *ngIf="selectedTab === 'purchases' && userRole === 'buyer'" class="fade-in">
+        <div class="section-header">
+          <h2>✅ مشترياتى المكتملة</h2>
+          <p>كل الأصول التى اشتريتها بنجاح.</p>
+        </div>
+
+        <div *ngIf="dealsLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <ng-container *ngIf="!dealsLoading">
+          <div *ngIf="completedDealsCount === 0" class="glass-card empty-state">
+            <h3>لا يوجد مشتريات مكتملة بعد</h3>
+          </div>
+          <div *ngIf="completedDealsCount > 0" class="glass-card table-container">
+            <table class="glass-table">
+              <thead><tr><th>الأصل</th><th>المبلغ</th><th>تاريخ الشراء</th><th>الإجراء</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let deal of deals">
+                  <ng-container *ngIf="deal.status === 'completed'">
+                    <td>{{ deal.project?.title || '—' }}</td>
+                    <td>{{ deal.finalAmount | number }} ريال</td>
+                    <td>{{ deal.createdAt | date:'shortDate' }}</td>
+                    <td><a [routerLink]="['/deals', deal.id]" class="action-btn">عرض ←</a></td>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- ========== ADMIN: All Projects ========== -->
+      <div *ngIf="selectedTab === 'projects' && userRole === 'admin'" class="fade-in">
+        <div class="section-header">
+          <div class="header-with-actions">
+            <div>
+              <h2>💼 إدارة الأصول</h2>
+              <p>كل الأصول المعروضة على المنصة - راجع، اعتمد، أو احذف.</p>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="action-btn" [class.active-filter]="projectsFilter === 'all'" (click)="projectsFilter = 'all'">الكل ({{ allProjects.length }})</button>
+              <button class="action-btn" [class.active-filter]="projectsFilter === 'pending'" (click)="projectsFilter = 'pending'">بانتظار المراجعة</button>
+              <button class="action-btn" [class.active-filter]="projectsFilter === 'active'" (click)="projectsFilter = 'active'">نشط</button>
+              <button class="action-btn" [class.active-filter]="projectsFilter === 'sold'" (click)="projectsFilter = 'sold'">مباع</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="allProjectsLoading" class="loading-state"><div class="spinner"></div><p>جارى التحميل...</p></div>
+
+        <div *ngIf="!allProjectsLoading && filteredAdminProjects.length === 0" class="glass-card empty-state">
+          <h3>لا توجد أصول فى هذا التصنيف</h3>
+        </div>
+
+        <div *ngIf="!allProjectsLoading && filteredAdminProjects.length > 0" class="glass-card table-container">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>المالك</th>
+                <th>الفئة</th>
+                <th>السعر</th>
+                <th>الحالة</th>
+                <th>المشاهدات</th>
+                <th>التاريخ</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let project of filteredAdminProjects">
+                <td>
+                  <a [routerLink]="['/projects', project.id]" target="_blank" style="color:#1a3d7a;font-weight:600;text-decoration:none;">
+                    {{ project.title }}
+                  </a>
+                </td>
+                <td>{{ project.owner?.fullName || '—' }}</td>
+                <td>{{ project.category }}</td>
+                <td>{{ project.price | number }} ر.س</td>
+                <td><span class="status-badge" [ngClass]="'status-' + project.status">{{ projectStatusLabel(project.status) }}</span></td>
+                <td>{{ project.viewCount || 0 }}</td>
+                <td>{{ project.createdAt | date:'shortDate' }}</td>
+                <td>
+                  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                    <button *ngIf="project.status === 'pending'"
+                            class="action-btn"
+                            style="background:#10b981;color:#fff;border-color:#10b981;"
+                            (click)="approveAdminProject(project)"
+                            title="موافقة ونشر">✓ موافقة</button>
+                    <button *ngIf="project.status === 'pending'"
+                            class="action-btn"
+                            style="background:#f59e0b;color:#fff;border-color:#f59e0b;"
+                            (click)="rejectAdminProject(project)"
+                            title="رفض">✗ رفض</button>
+                    <button class="action-btn"
+                            style="background:#ef4444;color:#fff;border-color:#ef4444;"
+                            (click)="deleteAdminProject(project)"
+                            title="حذف نهائى">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== Favorites placeholder ========== -->
+      <div *ngIf="selectedTab === 'favorites'" class="fade-in">
+        <div class="section-header">
+          <h2>⭐ المتابعة (Watchlist)</h2>
+          <p>الأصول اللى علّمتها للمتابعة.</p>
+        </div>
+        <div class="glass-card empty-state">
+          <h3>قريباً...</h3>
+          <p>ميزة Watchlist قيد التطوير.</p>
+        </div>
+      </div>
+
+      <!-- ========== Profile Settings ========== -->
+      <div *ngIf="selectedTab === 'profile-settings'" class="fade-in">
+        <div class="section-header">
+          <h2>⚙️ الإعدادات الشخصية</h2>
+          <p>عدّل بياناتك ومعلومات التواصل.</p>
+        </div>
+
+        <div *ngIf="profileLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <ng-container *ngIf="!profileLoading">
+          <!-- Personal Info -->
+          <form (ngSubmit)="saveProfile()" class="settings-form" style="margin-bottom:2rem;">
+            <div class="glass-card form-section">
+              <h3>👤 البيانات الشخصية</h3>
+
+              <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" [(ngModel)]="profile.fullName" name="fullName" class="glass-input" placeholder="الاسم الثلاثى" required />
+              </div>
+
+              <div class="form-group">
+                <label>البريد الإلكترونى <small style="color:#94a3b8;">(غير قابل للتعديل)</small></label>
+                <input type="email" [value]="profile.email" class="glass-input" disabled />
+              </div>
+
+              <div class="form-group">
+                <label>📞 رقم الهاتف</label>
+                <input type="tel" [(ngModel)]="profile.phoneNumber" name="phoneNumber" class="glass-input" placeholder="+966 5X XXX XXXX" dir="ltr" />
+                <small>يستخدم لإرسال رمز التحقق (OTP)</small>
+              </div>
+
+              <div class="form-group">
+                <label>💬 رقم الواتساب</label>
+                <input type="tel" [(ngModel)]="profile.whatsappNumber" name="whatsappNumber" class="glass-input" placeholder="+966 5X XXX XXXX" dir="ltr" />
+                <small>يظهر للمشترى/البائع للتواصل المباشر</small>
+              </div>
+
+              <div class="settings-actions">
+                <div class="status-messages">
+                  <span class="success-msg" *ngIf="profileSuccess">{{ profileSuccess }}</span>
+                  <span class="error-msg" *ngIf="profileError">{{ profileError }}</span>
+                </div>
+                <button type="submit" class="btn-save glass-btn" [disabled]="profileSaving">
+                  {{ profileSaving ? 'جارى الحفظ...' : '💾 حفظ البيانات' }}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Change Password -->
+          <form (ngSubmit)="changePassword()" class="settings-form">
+            <div class="glass-card form-section">
+              <h3>🔒 تغيير كلمة المرور</h3>
+
+              <div class="form-group">
+                <label>كلمة المرور الحالية</label>
+                <input type="password" [(ngModel)]="passwords.current" name="current" class="glass-input" autocomplete="current-password" />
+              </div>
+
+              <div class="form-group">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" [(ngModel)]="passwords.new" name="new" class="glass-input" autocomplete="new-password" minlength="6" />
+              </div>
+
+              <div class="form-group">
+                <label>تأكيد كلمة المرور الجديدة</label>
+                <input type="password" [(ngModel)]="passwords.confirm" name="confirm" class="glass-input" autocomplete="new-password" />
+              </div>
+
+              <div class="settings-actions">
+                <div class="status-messages">
+                  <span class="success-msg" *ngIf="passwordSuccess">{{ passwordSuccess }}</span>
+                  <span class="error-msg" *ngIf="passwordError">{{ passwordError }}</span>
+                </div>
+                <button type="submit" class="btn-save glass-btn" [disabled]="passwordSaving">
+                  {{ passwordSaving ? 'جارى الحفظ...' : '🔑 تحديث كلمة المرور' }}
+                </button>
+              </div>
+            </div>
+          </form>
+        </ng-container>
       </div>
 
       <!-- Media Gallery Tab -->
@@ -367,11 +712,104 @@
           <p *ngIf="userRole === 'admin'">مراجعة طلبات التوثيق المقدّمة من المستخدمين.</p>
         </div>
 
-        <div class="glass-card empty-state">
-          <h3>قريباً - واجهة التوثيق الكاملة</h3>
-          <p>يمكنك حالياً رفع وثائقك عبر الـ API (<code>POST /api/kyc/submit</code>).</p>
-          <p style="margin-top: 1rem;">الحالة الحالية: <strong>{{ currentUserKycStatus() }}</strong></p>
-        </div>
+        <div *ngIf="kycLoading" class="loading-state"><div class="spinner"></div></div>
+
+        <!-- ===== USER VIEW ===== -->
+        <ng-container *ngIf="!kycLoading && userRole !== 'admin'">
+          <!-- Status banner -->
+          <div *ngIf="hasApprovedKyc" class="glass-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(255,255,255,0.6));border:1.5px solid rgba(16,185,129,0.4);padding:1.5rem;margin-bottom:1.5rem;">
+            <h3 style="color:#059669;margin:0 0 0.4rem;">✅ حسابك موثّق</h3>
+            <p style="margin:0;color:#475569;">تم توثيق هويتك بنجاح. ستظهر علامة "موثّق" على ملفك للمشترين والبائعين.</p>
+          </div>
+
+          <div *ngIf="hasPendingKyc && !hasApprovedKyc" class="glass-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(255,255,255,0.6));border:1.5px solid rgba(245,158,11,0.4);padding:1.5rem;margin-bottom:1.5rem;">
+            <h3 style="color:#d97706;margin:0 0 0.4rem;">⏳ طلبك قيد المراجعة</h3>
+            <p style="margin:0;color:#475569;">سيتم مراجعة وثائقك خلال 24-48 ساعة.</p>
+          </div>
+
+          <!-- Upload form (only if no pending and not approved) -->
+          <form *ngIf="!hasPendingKyc && !hasApprovedKyc" (ngSubmit)="submitKyc()" class="settings-form">
+            <div class="glass-card form-section">
+              <h3>📤 رفع وثيقة جديدة</h3>
+
+              <div class="form-group">
+                <label>نوع الوثيقة</label>
+                <select [(ngModel)]="kycForm.documentType" name="documentType" class="glass-input">
+                  <option value="national_id">الهوية الوطنية</option>
+                  <option value="passport">جواز السفر</option>
+                  <option value="commercial_register">السجل التجارى</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>📷 صورة الوثيقة (الوجه الأمامى) *</label>
+                <input type="file" accept="image/*,.pdf" (change)="onKycFileSelect($event, 'front')" class="glass-input" />
+                <small *ngIf="kycForm.frontFile" style="color:#059669;">✓ تم اختيار: {{ kycForm.frontFile.name }}</small>
+              </div>
+
+              <div class="form-group">
+                <label>📷 صورة الوثيقة (الوجه الخلفى) - اختيارى</label>
+                <input type="file" accept="image/*,.pdf" (change)="onKycFileSelect($event, 'back')" class="glass-input" />
+                <small *ngIf="kycForm.backFile" style="color:#059669;">✓ تم اختيار: {{ kycForm.backFile.name }}</small>
+              </div>
+
+              <div class="settings-actions">
+                <div class="status-messages">
+                  <span class="success-msg" *ngIf="kycSuccess">{{ kycSuccess }}</span>
+                  <span class="error-msg" *ngIf="kycError">{{ kycError }}</span>
+                </div>
+                <button type="submit" class="btn-save glass-btn" [disabled]="kycSaving || !kycForm.frontFile">
+                  {{ kycSaving ? 'جارى الرفع...' : '🚀 رفع للمراجعة' }}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- My documents history -->
+          <div *ngIf="myKycDocs.length > 0" class="glass-card table-container" style="margin-top:1.5rem;">
+            <table class="glass-table">
+              <thead><tr><th>نوع الوثيقة</th><th>الحالة</th><th>التاريخ</th><th>سبب الرفض</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let doc of myKycDocs">
+                  <td>{{ kycDocTypeLabel(doc.documentType) }}</td>
+                  <td><span class="status-badge" [ngClass]="'status-' + doc.status">{{ kycStatusLabel(doc.status) }}</span></td>
+                  <td>{{ doc.createdAt | date:'shortDate' }}</td>
+                  <td>{{ doc.rejectionReason || '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+
+        <!-- ===== ADMIN VIEW ===== -->
+        <ng-container *ngIf="!kycLoading && userRole === 'admin'">
+          <div *ngIf="pendingKycDocs.length === 0" class="glass-card empty-state">
+            <h3>✅ لا توجد طلبات معلّقة</h3>
+            <p>كل الطلبات تمت مراجعتها.</p>
+          </div>
+
+          <div *ngIf="pendingKycDocs.length > 0" class="glass-card table-container">
+            <table class="glass-table">
+              <thead><tr><th>المستخدم</th><th>الإيميل</th><th>نوع الوثيقة</th><th>الصور</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let doc of pendingKycDocs">
+                  <td>{{ doc.user?.fullName || doc.userId }}</td>
+                  <td>{{ doc.user?.email || '—' }}</td>
+                  <td>{{ kycDocTypeLabel(doc.documentType) }}</td>
+                  <td>
+                    <a [href]="doc.documentUrl" target="_blank" class="action-btn" style="margin-left:0.4rem;">📷 أمامى</a>
+                    <a *ngIf="doc.backImageUrl" [href]="doc.backImageUrl" target="_blank" class="action-btn">📷 خلفى</a>
+                  </td>
+                  <td>{{ doc.createdAt | date:'shortDate' }}</td>
+                  <td>
+                    <button class="action-btn" style="background:#10b981;color:#fff;border-color:#10b981;margin-left:0.4rem;" (click)="approveKyc(doc)">✓ موافقة</button>
+                    <button class="action-btn" style="background:#ef4444;color:#fff;border-color:#ef4444;" (click)="rejectKyc(doc)">✗ رفض</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
       </div>
 
       <!-- SEO Tab -->
@@ -568,7 +1006,7 @@
       </div>
 
       <!-- Other placeholders -->
-      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings' && selectedTab !== 'users' && selectedTab !== 'deals' && selectedTab !== 'kyc' && selectedTab !== 'integrations' && selectedTab !== 'seo' && selectedTab !== 'code-injection'" class="fade-in empty-state">
+      <div *ngIf="selectedTab !== 'overview' && selectedTab !== 'media' && selectedTab !== 'settings' && selectedTab !== 'users' && selectedTab !== 'deals' && selectedTab !== 'kyc' && selectedTab !== 'integrations' && selectedTab !== 'seo' && selectedTab !== 'code-injection' && selectedTab !== 'my-offers' && selectedTab !== 'offers' && selectedTab !== 'my-listings' && selectedTab !== 'purchases' && selectedTab !== 'favorites' && selectedTab !== 'profile-settings' && selectedTab !== 'projects'" class="fade-in empty-state">
          <h3>قريباً...</h3>
          <p>سيتم تفعيل قسم "{{ selectedTab }}" قريباً بناءً على صلاحياتك.</p>
       </div>

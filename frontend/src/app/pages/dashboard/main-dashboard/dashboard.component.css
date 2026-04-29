@@ -566,3 +566,97 @@
   transition: all 0.2s;
 }
 .action-btn:hover { background: rgba(108, 99, 255, 0.2); }
+
+/* Active filter button */
+.action-btn.active-filter {
+  background: var(--primary-gradient);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+/* Project status colors */
+.status-pending { background: rgba(245, 158, 11, 0.15) !important; color: #d97706 !important; }
+.status-active { background: rgba(16, 185, 129, 0.15) !important; color: #059669 !important; }
+.status-sold { background: rgba(99, 102, 241, 0.15) !important; color: #4f46e5 !important; }
+.status-rejected { background: rgba(239, 68, 68, 0.15) !important; color: #dc2626 !important; }
+.status-draft { background: rgba(148, 163, 184, 0.15) !important; color: #64748b !important; }
+
+.header-with-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ============================================
+   Dashboard Mobile Responsive
+   ============================================ */
+@media (max-width: 1024px) {
+  .glass-sidebar { width: auto; flex-shrink: 0; }
+  .dashboard-content { padding: 1rem; gap: 1rem; }
+  .glass-header { padding: 1rem 1.25rem; }
+  .header-info h1 { font-size: 1.4rem; }
+  .glass-container { padding: 1.25rem; }
+  .glass-cards-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .form-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 768px) {
+  .glass-theme { flex-direction: column; }
+  .glass-sidebar { width: 0; }
+  .dashboard-content {
+    padding: 0.85rem;
+    padding-top: 4rem; /* room for mobile toggle button */
+    gap: 0.85rem;
+    width: 100%;
+  }
+  .glass-header {
+    padding: 0.85rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .header-info h1 { font-size: 1.2rem; margin: 0; }
+  .header-info p { font-size: 0.8rem; }
+  .header-actions { display: none; }
+  .glass-container { padding: 1rem; border-radius: 16px; }
+  .glass-card { padding: 1rem; border-radius: 14px; }
+  .stat-value { font-size: 1.5rem; }
+  .glass-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .glass-cards-grid .stat-card.highlight { grid-column: span 2; }
+
+  /* Tables: horizontal scroll instead of breaking */
+  .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .glass-table { min-width: 580px; font-size: 0.85rem; }
+  .glass-table th, .glass-table td { padding: 0.75rem 0.85rem; }
+
+  /* Form sections */
+  .form-section { padding: 1.25rem; }
+  .form-section h3 { font-size: 1.05rem; }
+  .form-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .form-group input, .form-group textarea, .form-group select { font-size: 1rem; }
+
+  /* Section headers stack */
+  .header-with-actions { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+  .header-with-actions > div:first-child h2 { font-size: 1.25rem; }
+
+  /* Modal */
+  .modal-content { width: 95%; padding: 1.25rem; }
+
+  /* Bg blur orbs reduce on mobile */
+  .bg-blur { display: none; }
+
+  /* Settings actions full width */
+  .settings-actions { flex-direction: column; gap: 0.75rem; align-items: stretch; }
+  .btn-save { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .glass-cards-grid { grid-template-columns: 1fr; }
+  .glass-cards-grid .stat-card.highlight { grid-column: span 1; }
+  .dashboard-content { padding: 0.65rem; padding-top: 4rem; }
+  .glass-table { min-width: 480px; font-size: 0.8rem; }
+}

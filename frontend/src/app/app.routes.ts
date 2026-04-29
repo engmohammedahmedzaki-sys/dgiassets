@@ -12,6 +12,7 @@ import { authGuard } from './guards/auth.guard';
 import { DealRoomComponent } from './pages/deal-room/deal-room.component';
 import { PaymentCallbackComponent } from './pages/payment/payment-callback.component';
 import { GoogleCallbackComponent } from './pages/auth/google-callback/google-callback.component';
+import { SelectRoleComponent } from './pages/auth/select-role/select-role.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -44,6 +45,11 @@ export const routes: Routes = [
   {
     path: 'auth/google-callback',
     component: GoogleCallbackComponent,
+  },
+  {
+    path: 'auth/select-role',
+    component: SelectRoleComponent,
+    canActivate: [authGuard],
   },
   { path: '**', redirectTo: '' },
 ];

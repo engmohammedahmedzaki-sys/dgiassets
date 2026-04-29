@@ -128,4 +128,16 @@ export class AuthService {
   generateTokenPublic(user: User): string {
     return this.generateToken(user);
   }
+
+  async selectRole(userId: string, role: 'buyer' | 'seller') {
+    if (!['buyer', 'seller'].includes(role)) {
+      throw new UnauthorizedException('دور غير صالح');
+    }
+    await this.usersService.update(userId, {
+      role: role as any,
+      roleSelected: true,
+    } as any);
+    const user = await this.usersService.findOne(userId);
+    return { user, message: 'تم اختيار الدور بنجاح' };
+  }
 }

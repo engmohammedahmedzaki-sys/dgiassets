@@ -36,7 +36,14 @@ export class GoogleCallbackComponent implements OnInit {
     }
 
     this.authService.loginWithToken(token).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        const user = this.authService.getCurrentUser() as any;
+        if (user && user.roleSelected === false) {
+          this.router.navigate(['/auth/select-role']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      },
       error: () => {
         this.error = 'حدث خطأ. يرجى المحاولة مرة أخرى.';
         setTimeout(() => this.router.navigate(['/login']), 2000);
