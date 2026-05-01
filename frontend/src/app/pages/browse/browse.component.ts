@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { ProjectsService, Project, ProjectFilters } from '../../services/project
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css'
 })
-export class BrowseComponent implements OnInit {
+export class BrowseComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
   loading = false;
   totalProjects = 0;
@@ -29,7 +29,21 @@ export class BrowseComponent implements OnInit {
   };
 
   sortBy = 'newest';
-  filtersOpen = false;
+  private _filtersOpen = false;
+  get filtersOpen(): boolean { return this._filtersOpen; }
+  set filtersOpen(value: boolean) {
+    this._filtersOpen = value;
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = value ? 'hidden' : '';
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() { if (this._filtersOpen) this.filtersOpen = false; }
+
+  ngOnDestroy() {
+    if (typeof document !== 'undefined') document.body.style.overflow = '';
+  }
   selectedProject: Project | null = null;
   viewMode: 'grid-3' | 'grid-2' | 'list' = 'grid-3';
 

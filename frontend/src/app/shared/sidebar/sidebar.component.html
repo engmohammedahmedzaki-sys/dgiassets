@@ -6,11 +6,10 @@
 
 <aside class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
   <div class="sidebar-header">
-    <div class="logo">
-      <div class="logo-icon">DA</div>
-      <span class="logo-text" *ngIf="!isCollapsed">DGI Assets</span>
-    </div>
-    <button class="toggle-btn" (click)="toggleSidebar()">
+    <a routerLink="/" class="sidebar-logo" aria-label="DGI Assets">
+      <img [src]="siteSettings?.logoUrl || 'assets/branding/logo.png'" alt="DGI Assets" class="sidebar-logo-img" [class.collapsed]="isCollapsed" />
+    </a>
+    <button class="toggle-btn" (click)="toggleSidebar()" [attr.aria-label]="isCollapsed ? 'فتح القائمة' : 'طى القائمة'">
       <span *ngIf="!isCollapsed">«</span>
       <span *ngIf="isCollapsed">»</span>
     </button>

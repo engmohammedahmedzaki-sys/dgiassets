@@ -2,6 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { SettingsService, SiteSettings } from '../../services/settings.service';
 
 interface MenuItem {
   label: string;
@@ -24,15 +25,20 @@ export class SidebarComponent implements OnInit {
   isCollapsed = false;
   isMobileOpen = false;
   currentUser: any = null;
+  siteSettings: SiteSettings | null = null;
 
   constructor(
     private authService: AuthService,
+    private settingsService: SettingsService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+    });
+    this.settingsService.settings$.subscribe(s => {
+      this.siteSettings = s;
     });
   }
 

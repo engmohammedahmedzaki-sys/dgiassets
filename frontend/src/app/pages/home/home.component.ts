@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit {
 
   steps = [
     { title: 'سجّل وفعّل حسابك', description: 'إنشاء حساب وتوثيق هوية عبر KYC' },
-    { title: 'تصفّح أو أضف أصل', description: 'ابحث عن الأصل المناسب أو اعرض أصلك للبيع' },
+    { title: 'تصفح أو أضف أصل', description: 'ابحث عن الأصل المناسب أو اعرض أصلك للبيع' },
     { title: 'تفاوض وادفع بضمان', description: 'قدّم عرضك وادفع عبر حساب الضمان' },
     { title: 'استلم أو سلّم', description: 'اتبع قائمة نقل الأصل خطوة بخطوة' },
     { title: 'تحويل آمن للمبلغ', description: 'البائع يستلم المبلغ بعد تأكيد الاستلام' }

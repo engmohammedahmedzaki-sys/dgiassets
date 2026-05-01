@@ -1,0 +1,13 @@
+{
+  "/api": {
+    "target": "https://dgiassets.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "https://dgiassets.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

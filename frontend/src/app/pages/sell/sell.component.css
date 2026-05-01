@@ -1,28 +1,166 @@
 /* Sell Page */
 .sell-page {
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: #fafbfd;
   padding-top: 80px;
 }
 
-/* Header */
-.sell-header {
-  background: var(--primary-gradient);
-  padding: 3rem 0;
-  color: white;
-  text-align: center;
+/* ===== Hero (matches browse-hero language, but with extra flair) ===== */
+.sell-hero {
+  position: relative;
+  background:
+    radial-gradient(1200px 400px at 80% -20%, rgba(59, 108, 181, 0.10), transparent 60%),
+    radial-gradient(900px 350px at 10% 110%, rgba(96, 165, 250, 0.08), transparent 60%),
+    #ffffff;
+  padding: 3rem 0 2.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.page-title {
-  font-size: 2.5rem;
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  opacity: 0.55;
+}
+.hero-orb.orb-1 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, #3b6cb5, transparent 70%);
+  top: -120px;
+  inset-inline-start: -60px;
+}
+.hero-orb.orb-2 {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #60a5fa, transparent 70%);
+  bottom: -120px;
+  inset-inline-end: 8%;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe;
+  color: #1a3d7a;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(26, 61, 122, 0.08);
+}
+.eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05); }
+}
+
+.hero-title {
+  font-size: 2.4rem;
   font-weight: 900;
-  margin: 0 0 0.5rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(135deg, #0a1628 0%, #1a3d7a 60%, #3b6cb5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.01em;
+}
+.title-accent {
+  background: linear-gradient(135deg, #3b6cb5, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.page-subtitle {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  margin: 0;
+.hero-sub {
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0 0 1.5rem;
+  max-width: 680px;
+}
+
+.hero-pills {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(191, 219, 254, 0.7);
+  padding: 0.65rem 1rem;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(26, 61, 122, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.hero-pill:hover {
+  transform: translateY(-2px);
+  border-color: #3b6cb5;
+  box-shadow: 0 10px 24px rgba(26, 61, 122, 0.14);
+}
+.pill-icon {
+  font-size: 1.25rem;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.pill-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.pill-text strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0a1628;
+}
+.pill-text span {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .sell-hero { padding: 2rem 0 1.75rem; }
+  .hero-title { font-size: 1.65rem; }
+  .hero-sub { font-size: 0.9rem; }
+  .hero-pills { gap: 0.5rem; }
+  .hero-pill { padding: 0.55rem 0.75rem; flex: 1 1 calc(50% - 0.5rem); min-width: 0; }
+  .pill-icon { width: 32px; height: 32px; font-size: 1rem; }
+  .pill-text strong { font-size: 0.82rem; }
+  .pill-text span { font-size: 0.68rem; }
+  .hero-orb.orb-1 { width: 200px; height: 200px; }
+  .hero-orb.orb-2 { width: 160px; height: 160px; }
+}
+@media (max-width: 480px) {
+  .hero-pill { flex: 1 1 100%; }
 }
 
 /* Layout */

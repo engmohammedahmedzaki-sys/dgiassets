@@ -4,16 +4,32 @@
   <div class="filter-backdrop" [class.show]="filtersOpen" (click)="filtersOpen = false"></div>
 
   <!-- Hero -->
-  <div class="browse-hero">
-    <div class="container">
-      <h1>تصفّح الأصول الرقمية</h1>
-      <p>اكتشف أفضل الأصول الرقمية المعروضة للبيع - مواقع، تطبيقات، متاجر، دومينات، وأكثر</p>
-      <div class="browse-stats">
-        <div class="stat-pill"><strong>{{ totalProjects }}</strong><span>أصل متاح</span></div>
-        <div class="stat-pill" *ngIf="activeFiltersCount > 0"><strong>{{ activeFiltersCount }}</strong><span>فلتر مفعّل</span></div>
+  <section class="browse-hero">
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+    <div class="container hero-inner">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>أصول مُتحقّق منها</span>
+      </div>
+      <h1 class="hero-title">تصفح الأصول الرقمية<br><span class="title-accent">واستثمر بثقة</span></h1>
+      <p class="hero-sub">اكتشف أفضل الأصول الرقمية المعروضة للبيع — مواقع، تطبيقات، متاجر، دومينات، وأكثر — كلها مفحوصة وجاهزة للنقل الآمن</p>
+      <div class="hero-pills">
+        <div class="hero-pill">
+          <span class="pill-icon">📦</span>
+          <div class="pill-text"><strong>{{ totalProjects }}</strong><span>أصل متاح الآن</span></div>
+        </div>
+        <div class="hero-pill" *ngIf="activeFiltersCount > 0">
+          <span class="pill-icon">🎯</span>
+          <div class="pill-text"><strong>{{ activeFiltersCount }}</strong><span>فلتر مفعّل</span></div>
+        </div>
+        <div class="hero-pill">
+          <span class="pill-icon">🛡️</span>
+          <div class="pill-text"><strong>ضمان كامل</strong><span>عبر الـ Escrow</span></div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <div class="container browse-grid">
 

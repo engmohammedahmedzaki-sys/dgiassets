@@ -65,12 +65,21 @@ export class RegisterComponent {
   }
 
   signUpWithGoogle() {
-    // TODO: Implement Google OAuth
-    alert('سيتم إضافة التسجيل بجوجل قريباً');
+    this.authService.loginWithGoogle();
+  }
+
+  private isValidEmail(email: string): boolean {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email.trim());
   }
 
   onSubmit() {
     // Validation
+    if (!this.userData.email || !this.isValidEmail(this.userData.email)) {
+      this.error = 'البريد الإلكتروني غير صالح';
+      return;
+    }
+
     if (this.userData.password !== this.confirmPassword) {
       this.error = 'كلمتا المرور غير متطابقتين';
       return;
@@ -83,6 +92,11 @@ export class RegisterComponent {
 
     if (this.userData.password.length < 6) {
       this.error = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      return;
+    }
+
+    if (!this.phoneNumberLocal || this.phoneNumberLocal.length < 6) {
+      this.error = 'رقم الهاتف غير صالح';
       return;
     }
 
@@ -103,13 +117,7 @@ export class RegisterComponent {
           this.loading = false;
           console.log('Registration successful:', response);
           alert('تم إنشاء الحساب بنجاح! ' + response.message);
-
-          // Navigate based on user role
-          if (response.user.role === 'seller') {
-            this.router.navigate(['/dashboard/seller']);
-          } else {
-            this.router.navigate(['/dashboard/buyer']);
-          }
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.loading = false;
