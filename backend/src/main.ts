@@ -9,10 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useWebSocketAdapter(new IoAdapter(app));
 
-  // Global validation pipe — rejects invalid bodies (e.g. malformed emails)
+  // Global validation pipe — rejects invalid bodies (e.g. malformed emails).
+  // whitelist:false keeps fields without decorators (legacy DTOs); decorated DTOs
+  // (RegisterDto, LoginDto, PlaceBidDto, ...) still get full validation.
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
+      whitelist: false,
       forbidNonWhitelisted: false,
       transform: true,
       stopAtFirstError: true,

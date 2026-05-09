@@ -85,8 +85,88 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
+
+      <!-- ========== Auction Card ========== -->
+      <div *ngIf="isAuction" class="auction-card glass-card">
+        <div class="auction-header">
+          <span class="auction-icon">🔨</span>
+          <div>
+            <h3>{{ isAuctionEnded ? 'انتهى المزاد' : 'المزاد جارٍ' }}</h3>
+            <p *ngIf="!isAuctionEnded">المزاد العلنى — أعلى مزايدة تفوز عند انتهاء الوقت</p>
+            <p *ngIf="isAuctionEnded && hasWinner">المزاد انتهى. الفائز سيتم التواصل معه لإكمال الصفقة.</p>
+            <p *ngIf="isAuctionEnded && !hasWinner">انتهى المزاد بدون مزايدات.</p>
+          </div>
+        </div>
+
+        <!-- Countdown -->
+        <div class="countdown-row" *ngIf="!isAuctionEnded">
+          <div class="countdown-cell"><span class="cd-num">{{ countdown.days }}</span><span class="cd-lbl">يوم</span></div>
+          <div class="countdown-cell"><span class="cd-num">{{ countdown.hours }}</span><span class="cd-lbl">ساعة</span></div>
+          <div class="countdown-cell"><span class="cd-num">{{ countdown.minutes }}</span><span class="cd-lbl">دقيقة</span></div>
+          <div class="countdown-cell pulse"><span class="cd-num">{{ countdown.seconds }}</span><span class="cd-lbl">ثانية</span></div>
+        </div>
+
+        <!-- High Bid Display -->
+        <div class="high-bid-row">
+          <div class="high-bid-block">
+            <span class="hb-label">{{ project.currentHighBid ? 'أعلى مزايدة الآن' : 'أقل مزايدة لبدء المزاد' }}</span>
+            <span class="hb-value">{{ (project.currentHighBid || project.minBid) | number }} ر.س</span>
+          </div>
+          <div class="bid-stats">
+            <span><strong>{{ project.bidCount || 0 }}</strong> مزايدة</span>
+          </div>
+        </div>
+
+        <!-- Bid Form -->
+        <div *ngIf="!isAuctionEnded && !isOwner" class="bid-form">
+          <div *ngIf="bidError" class="bid-alert bid-alert-error">{{ bidError }}</div>
+          <div *ngIf="bidSuccess" class="bid-alert bid-alert-success">{{ bidSuccess }}</div>
+          <label class="bid-label">قيمة مزايدتك (ر.س)</label>
+          <div class="bid-input-row">
+            <input
+              type="number"
+              [(ngModel)]="bidAmount"
+              [placeholder]="suggestedNextBid().toString()"
+              [min]="minBidAllowed()"
+              class="bid-input"
+            />
+            <button class="bid-submit-btn" [disabled]="bidPlacing" (click)="placeBid()">
+              {{ bidPlacing ? '...' : '🔨 زاود' }}
+            </button>
+          </div>
+          <small class="bid-hint">الحد الأدنى: {{ minBidAllowed() | number }} ر.س · مقترح: {{ suggestedNextBid() | number }} ر.س</small>
+        </div>
+
+        <!-- Owner notice -->
+        <div *ngIf="isOwner && !isAuctionEnded" class="owner-notice">
+          ℹ️ ده مزادك. مش هتقدر تزايد على مشروعك.
+        </div>
+
+        <!-- Winner info -->
+        <div *ngIf="isAuctionEnded && hasWinner" class="winner-banner">
+          🏆 الفائز بالمزاد بقيمة <strong>{{ project.currentHighBid | number }} ر.س</strong>
+        </div>
+
+        <!-- Bid History -->
+        <div class="bid-history" *ngIf="bids.length > 0">
+          <h4>📜 سجل المزايدات</h4>
+          <div class="bid-list">
+            <div class="bid-item" *ngFor="let b of bids; let i = index" [class.is-top]="i === 0">
+              <span class="bid-rank">{{ i === 0 ? '👑' : '#' + (i + 1) }}</span>
+              <span class="bid-name">{{ b.bidderName }}</span>
+              <span class="bid-amount">{{ b.amount | number }} ر.س</span>
+              <span class="bid-time">{{ b.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="bid-history-empty" *ngIf="!bidsLoading && bids.length === 0">
+          لا توجد مزايدات بعد — كن أول من يزايد!
+        </div>
+      </div>
+      <!-- ========== /Auction Card ========== -->
+
       <!-- Quick Actions -->
-      <div class="action-card glass-card">
+      <div class="action-card glass-card" *ngIf="!isAuction">
         <h3>مهتم بهذا المشروع؟</h3>
         <p>تواصل مع البائع مباشرة أو قدم عرضك الآن.</p>
         <button class="btn-primary-action">تقديم عرض (Make Offer)</button>

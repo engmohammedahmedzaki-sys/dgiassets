@@ -19,6 +19,8 @@ import { Project, ProjectStatus } from '../projects/project.entity';
 import { User } from '../users/user.entity';
 import { Offer } from '../offers/offer.entity';
 import { Deal, DealStatus } from '../deals/deal.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/notification.entity';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -26,6 +28,7 @@ import { Deal, DealStatus } from '../deals/deal.entity';
 export class AdminController {
   constructor(
     private readonly projectsService: ProjectsService,
+    private readonly notificationsService: NotificationsService,
     @InjectRepository(Project) private projectsRepo: Repository<Project>,
     @InjectRepository(User) private usersRepo: Repository<User>,
     @InjectRepository(Offer) private offersRepo: Repository<Offer>,
@@ -131,6 +134,18 @@ export class AdminController {
       { status: ProjectStatus.ACTIVE },
       project.ownerId,
     );
+
+    // Notify the seller that their project was approved
+    this.notificationsService
+      .create(
+        project.ownerId,
+        NotificationType.PROJECT_APPROVED,
+        '✅ تمت الموافقة على مشروعك',
+        `مشروع "${project.title}" أصبح منشوراً ومتاحاً للمشترين الآن.`,
+        { projectId: project.id },
+      )
+      .catch(() => {});
+
     return { success: true, message: 'تمت الموافقة على المشروع' };
   }
 
@@ -138,7 +153,23 @@ export class AdminController {
   async rejectProject(@Param('id') id: string) {
     const project = await this.projectsService.findOne(id);
     if (!project) throw new NotFoundException('Project not found');
+
+    // Capture details before deletion so the seller knows what was rejected
+    const ownerId = project.ownerId;
+    const title = project.title;
+
     await this.projectsService.remove(id, project.ownerId);
+
+    this.notificationsService
+      .create(
+        ownerId,
+        NotificationType.PROJECT_REJECTED,
+        '❌ لم تتم الموافقة على مشروعك',
+        `مشروع "${title}" تم رفضه. للتفاصيل تواصل مع فريق الدعم.`,
+        { projectTitle: title },
+      )
+      .catch(() => {});
+
     return { success: true, message: 'تم رفض المشروع' };
   }
 }

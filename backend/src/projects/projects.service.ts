@@ -4,12 +4,18 @@ import { Repository, Like, Between, MoreThanOrEqual, LessThanOrEqual } from 'typ
 import { Project, ProjectStatus, ProjectCategory } from './project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { User } from '../users/user.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/notification.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(createProjectDto: CreateProjectDto, ownerId: string): Promise<Project> {
@@ -18,7 +24,30 @@ export class ProjectsService {
       ownerId,
       status: ProjectStatus.PENDING,
     } as Partial<Project>);
-    return this.projectsRepository.save(project);
+    const saved = await this.projectsRepository.save(project);
+
+    // Notify all admins about the new pending project (non-blocking)
+    this.notifyAdminsOfNewProject(saved).catch(() => {});
+
+    return saved;
+  }
+
+  private async notifyAdminsOfNewProject(project: Project): Promise<void> {
+    const admins = await this.usersRepository.find({
+      where: { role: 'admin' as any },
+      select: ['id'],
+    });
+    await Promise.all(
+      admins.map((admin) =>
+        this.notificationsService.create(
+          admin.id,
+          NotificationType.PROJECT_SUBMITTED,
+          '🆕 مشروع جديد بانتظار المراجعة',
+          `تم إضافة مشروع "${project.title}" بسعر ${Number(project.price).toLocaleString('ar-EG')} ر.س ويحتاج مراجعة.`,
+          { projectId: project.id, ownerId: project.ownerId },
+        ),
+      ),
+    );
   }
 
   async findAll(filters?: {

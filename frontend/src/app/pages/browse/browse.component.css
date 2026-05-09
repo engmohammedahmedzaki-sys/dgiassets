@@ -480,6 +480,29 @@
 .badge.featured { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; }
 .badge.verified { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
 .badge.nda { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; }
+.badge.auction {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  animation: auction-pulse 1.8s ease-in-out infinite;
+}
+@keyframes auction-pulse {
+  0%, 100% { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
+  50% { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 0 0 6px rgba(239, 68, 68, 0.15); }
+}
+
+.price-value.auction-price {
+  background: linear-gradient(135deg, #ea580c, #b91c1c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.auction-meta {
+  display: block;
+  font-size: 0.7rem;
+  color: #b91c1c;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
 
 .asset-body {
   padding: 1rem 1.15rem;

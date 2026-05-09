@@ -101,6 +101,16 @@ export class Settings {
   @Column({ default: false })
   smtpEnabled: boolean;
 
+  // === OpenAI (AI Valuation Engine) ===
+  @Column({ type: 'text', nullable: true })
+  openaiApiKey: string | null;
+
+  @Column({ type: 'text', nullable: true, default: 'gpt-4o-mini' })
+  openaiModel: string | null;
+
+  @Column({ default: false })
+  openaiEnabled: boolean;
+
   // === Business / Commission ===
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 25.00 })
   commissionPercentage: number;

@@ -1212,6 +1212,30 @@
             </div>
           </div>
 
+          <!-- ===== OpenAI (AI Valuation) ===== -->
+          <div class="integration-section">
+            <h3>🧠 OpenAI — التقييم الذكى</h3>
+            <p class="section-hint">يستخدم GPT لتقدير الأصول الرقمية. لو معطّل، تنزل المنصة على صيغة محلية بـ multiples.</p>
+            <div class="form-group">
+              <label class="toggle-label">
+                <input type="checkbox" [(ngModel)]="integrations.openaiEnabled" name="openaiEnabled" />
+                <span>تفعيل التقييم الذكى</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>OpenAI API Key <small *ngIf="integrations.hasOpenaiApiKey" style="color:#10b981;">(محفوظ - اتركه فارغاً للإبقاء)</small></label>
+              <input type="password" [(ngModel)]="integrations.openaiApiKey" name="openaiApiKey" class="glass-input" placeholder="sk-... (اتركه فارغاً للإبقاء على الحالى)" />
+            </div>
+            <div class="form-group">
+              <label>الموديل</label>
+              <select [(ngModel)]="integrations.openaiModel" name="openaiModel" class="glass-input">
+                <option value="gpt-4o-mini">gpt-4o-mini (الأسرع والأرخص — موصى به)</option>
+                <option value="gpt-4o">gpt-4o (أعلى جودة، أعلى تكلفة)</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+              </select>
+            </div>
+          </div>
+
           <div class="settings-actions">
             <div class="status-messages">
               <span class="success-msg" *ngIf="integrationsSuccess">{{ integrationsSuccess }}</span>

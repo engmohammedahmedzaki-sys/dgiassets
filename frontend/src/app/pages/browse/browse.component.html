@@ -130,6 +130,7 @@
             <img *ngIf="project.mainImage" [src]="project.mainImage" [alt]="project.title" />
             <div *ngIf="!project.mainImage" class="asset-placeholder"><span>{{ project.title.charAt(0) }}</span></div>
             <div class="asset-badges">
+              <span *ngIf="project.listingType === 'auction'" class="badge auction">🔨 مزاد</span>
               <span *ngIf="project.isFeatured" class="badge featured">⭐ مميز</span>
               <span *ngIf="project.owner?.kycStatus === 'verified'" class="badge verified">✓ موثّق</span>
               <span *ngIf="project.requiresNda" class="badge nda">🔒 NDA</span>
@@ -158,10 +159,17 @@
 
             <div class="asset-footer">
               <div class="asset-price">
-                <span class="price-label">السعر</span>
-                <span class="price-value">{{ project.price | number }} ر.س</span>
+                <ng-container *ngIf="project.listingType === 'auction'; else fixedPrice">
+                  <span class="price-label">{{ project.currentHighBid ? 'أعلى مزايدة' : 'يبدأ من' }}</span>
+                  <span class="price-value auction-price">{{ (project.currentHighBid || project.minBid) | number }} ر.س</span>
+                  <span class="auction-meta">{{ project.bidCount || 0 }} مزايدة · {{ remainingTime(project.auctionEndsAt) }}</span>
+                </ng-container>
+                <ng-template #fixedPrice>
+                  <span class="price-label">السعر</span>
+                  <span class="price-value">{{ project.price | number }} ر.س</span>
+                </ng-template>
               </div>
-              <button class="view-btn">عرض ←</button>
+              <button class="view-btn">{{ project.listingType === 'auction' ? 'زاود ←' : 'عرض ←' }}</button>
             </div>
           </div>
         </div>

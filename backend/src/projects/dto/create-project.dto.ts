@@ -23,4 +23,9 @@ export class CreateProjectDto {
   mainImage?: string;
   reasonForSelling?: string;
   highlights?: string;
+
+  // Auction fields
+  listingType?: 'fixed' | 'auction';
+  auctionEndsAt?: string | null;
+  minBid?: number;
 }

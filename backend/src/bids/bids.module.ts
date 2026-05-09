@@ -2,17 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { ProjectsService } from './projects.service';
-import { ProjectsController } from './projects.controller';
-import { Project } from './project.entity';
-import { User } from '../users/user.entity';
-import { NdaModule } from '../nda/nda.module';
+import { Bid } from './bid.entity';
+import { Project } from '../projects/project.entity';
+import { BidsService } from './bids.service';
+import { BidsController } from './bids.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Project, User]),
-    NdaModule,
+    TypeOrmModule.forFeature([Bid, Project]),
     NotificationsModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
@@ -21,8 +19,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [ProjectsController],
-  providers: [ProjectsService],
-  exports: [ProjectsService],
+  controllers: [BidsController],
+  providers: [BidsService],
+  exports: [BidsService],
 })
-export class ProjectsModule {}
+export class BidsModule {}

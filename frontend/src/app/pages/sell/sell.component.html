@@ -173,11 +173,39 @@
         <div class="form-step" *ngIf="currentStep === 2">
           <h2 class="step-title">المقاييس المالية</h2>
 
-          <div class="form-row">
+          <!-- Listing Type Selector -->
+          <div class="form-group">
+            <label>طريقة البيع *</label>
+            <div class="listing-type-grid">
+              <label class="listing-type-option" [class.selected]="projectData.listingType === 'fixed'">
+                <input type="radio" name="listingType" value="fixed" [(ngModel)]="projectData.listingType" />
+                <div class="listing-type-content">
+                  <span class="listing-icon">💰</span>
+                  <div>
+                    <strong>بيع بسعر ثابت</strong>
+                    <p>سعر محدّد، يقبله المشترى أو يفاوض عليه</p>
+                  </div>
+                </div>
+              </label>
+              <label class="listing-type-option" [class.selected]="projectData.listingType === 'auction'">
+                <input type="radio" name="listingType" value="auction" [(ngModel)]="projectData.listingType" />
+                <div class="listing-type-content">
+                  <span class="listing-icon">🔨</span>
+                  <div>
+                    <strong>مزاد علنى</strong>
+                    <p>المشترون يزايدون، الأعلى يفوز عند انتهاء الوقت</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Fixed Price -->
+          <div class="form-row" *ngIf="!isAuction">
             <div class="form-group">
-              <label>السعر المطلوب (بالدولار) *</label>
-              <input 
-                type="number" 
+              <label>السعر المطلوب (ريال سعودى) *</label>
+              <input
+                type="number"
                 [(ngModel)]="projectData.price"
                 (input)="calculateAIValuation()"
                 placeholder="85000"
@@ -187,8 +215,8 @@
 
             <div class="form-group checkbox-group">
               <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   [(ngModel)]="projectData.isNegotiable"
                 />
                 <span>السعر قابل للتفاوض</span>
@@ -196,14 +224,109 @@
             </div>
           </div>
 
-          <!-- AI Valuation Display -->
-          <div class="ai-valuation" *ngIf="aiValuation > 0">
-            <div class="ai-icon">🤖</div>
-            <div>
-              <h4>التقييم بالذكاء الاصطناعي</h4>
-              <p class="ai-value">${{ aiValuation | number }}</p>
-              <p class="ai-note">بناءً على الإيرادات الشهرية</p>
+          <!-- Auction Fields -->
+          <div class="form-row" *ngIf="isAuction">
+            <div class="form-group">
+              <label>الحد الأدنى للمزايدة (ريال سعودى) *</label>
+              <input
+                type="number"
+                [(ngModel)]="projectData.minBid"
+                placeholder="50000"
+                class="form-input"
+              />
+              <small class="field-hint">أقل سعر مقبول لبدء المزاد. لو ما وصلتش له، المزاد ينتهى بدون فائز.</small>
             </div>
+
+            <div class="form-group">
+              <label>مدة المزاد *</label>
+              <select [(ngModel)]="projectData.auctionDurationDays" class="form-input">
+                <option *ngFor="let d of auctionDurations" [ngValue]="d.value">{{ d.label }}</option>
+              </select>
+              <small class="field-hint">المزاد بيقفل تلقائياً بعد المدة دى من قبول الإدارة للنشر.</small>
+            </div>
+          </div>
+
+          <!-- Smart AI Valuation -->
+          <div class="ai-valuation-card">
+            <div class="ai-card-header">
+              <div class="ai-card-title">
+                <span class="ai-card-icon">🤖</span>
+                <div>
+                  <h4>تقييم ذكى للأصل</h4>
+                  <p>احصل على نطاق سعرى مدروس بناءً على بياناتك — لحظات</p>
+                </div>
+              </div>
+              <button class="ai-run-btn" type="button" [disabled]="valuationLoading" (click)="runAIValuation()">
+                {{ valuationLoading ? '⏳ جارٍ...' : (valuationResult ? '🔄 إعادة التقييم' : '✨ قيّم الآن') }}
+              </button>
+            </div>
+
+            <div *ngIf="valuationError" class="ai-error">⚠️ {{ valuationError }}</div>
+
+            <div *ngIf="valuationResult" class="ai-result">
+              <div class="ai-range">
+                <div class="range-cell">
+                  <span class="range-label">أدنى معقول</span>
+                  <span class="range-value">{{ valuationResult.rangeLow | number }} ر.س</span>
+                </div>
+                <div class="range-cell range-fair">
+                  <span class="range-label">السعر العادل</span>
+                  <span class="range-value">{{ valuationResult.fairPrice | number }} ر.س</span>
+                </div>
+                <div class="range-cell">
+                  <span class="range-label">أعلى معقول</span>
+                  <span class="range-value">{{ valuationResult.rangeHigh | number }} ر.س</span>
+                </div>
+              </div>
+
+              <div class="ai-meta">
+                <span class="meta-pill" [class]="'conf-' + valuationResult.confidence">
+                  ثقة {{ confidenceLabel(valuationResult.confidence) }}
+                </span>
+                <span class="meta-pill" *ngIf="valuationResult.multiple > 0">
+                  multiple × {{ valuationResult.multiple }}
+                </span>
+                <span class="meta-pill source">
+                  {{ valuationResult.source === 'ai' ? '🧠 GPT' : '📐 صيغة محلية' }}
+                </span>
+              </div>
+
+              <p class="ai-reasoning">{{ valuationResult.reasoning }}</p>
+
+              <button class="ai-apply-btn" type="button" (click)="applyValuation()">
+                ✅ اعتمد {{ valuationResult.fairPrice | number }} ر.س كسعر
+              </button>
+            </div>
+
+            <div *ngIf="!valuationResult && !valuationLoading && !valuationError" class="ai-empty">
+              💡 تنصح المنصة بإدخال بيانات قسم "المقاييس المالية" قبل التقييم للحصول على دقة أعلى.
+            </div>
+          </div>
+
+          <!-- Commission Breakdown Preview -->
+          <div class="commission-breakdown" *ngIf="priceNumber > 0">
+            <div class="commission-header">
+              <span class="commission-icon">💰</span>
+              <div>
+                <h4>{{ isAuction ? 'توزيع المبلغ عند الفوز بالمزاد' : 'توزيع المبلغ عند البيع' }}</h4>
+                <p>المنصة تأخذ {{ commissionPercentage }}% عمولة وتحوّل الباقى للبائع بعد التحقق من نقل الأصل{{ isAuction ? ' (الأرقام تقريبية بناءً على الحد الأدنى — هتزيد لو وصلت مزايدات أعلى)' : '' }}</p>
+              </div>
+            </div>
+            <div class="commission-rows">
+              <div class="commission-row">
+                <span class="row-label">{{ isAuction ? 'الحد الأدنى للمزايدة' : 'السعر المعلن' }}</span>
+                <span class="row-value">{{ priceNumber | number }} ر.س</span>
+              </div>
+              <div class="commission-row commission-row-deduction">
+                <span class="row-label">– عمولة المنصة ({{ commissionPercentage }}%)</span>
+                <span class="row-value">{{ commissionAmount | number }} ر.س</span>
+              </div>
+              <div class="commission-row commission-row-final">
+                <span class="row-label">{{ isAuction ? 'صافى أقل مبلغ مضمون' : 'صافى ما ستستلمه' }}</span>
+                <span class="row-value">{{ sellerPayout | number }} ر.س</span>
+              </div>
+            </div>
+            <p class="commission-note">⏱️ المبلغ يُحوّل لحسابك بعد فترة فحص المشترى ({{ inspectionDays }} أيام) من تأكيد نقل الأصل.</p>
           </div>
 
           <div class="form-row">

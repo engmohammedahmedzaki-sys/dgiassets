@@ -163,6 +163,7 @@
            [class.featured]="i === 0"
            (click)="goToProject(project.id)">
         <div class="project-badge pulse" *ngIf="i === 0">🔥 مميز</div>
+        <div class="project-badge auction-badge" *ngIf="project.listingType === 'auction'">🔨 مزاد</div>
         <div class="project-image">
           <img *ngIf="project.mainImage" [src]="project.mainImage" [alt]="project.title" />
           <div *ngIf="!project.mainImage" class="image-placeholder">
@@ -195,8 +196,15 @@
 
           <div class="project-footer">
             <div class="project-price">
-              <span class="price-label">السعر</span>
-              <span class="price-value">{{ formatPrice(project.price) }}</span>
+              <ng-container *ngIf="project.listingType === 'auction'; else fixedHomePrice">
+                <span class="price-label">{{ project.currentHighBid ? 'أعلى مزايدة' : 'يبدأ من' }}</span>
+                <span class="price-value auction-price">{{ formatPrice((project.currentHighBid || project.minBid) || 0) }}</span>
+                <span class="auction-meta-home">{{ project.bidCount || 0 }} مزايدة · {{ remainingTime(project.auctionEndsAt) }}</span>
+              </ng-container>
+              <ng-template #fixedHomePrice>
+                <span class="price-label">السعر</span>
+                <span class="price-value">{{ formatPrice(project.price) }}</span>
+              </ng-template>
             </div>
           </div>
 

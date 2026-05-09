@@ -650,6 +650,33 @@
   50% { box-shadow: 0 5px 30px rgba(255, 107, 53, 0.6); }
 }
 
+.project-badge.auction-badge {
+  top: 1rem;
+  right: auto;
+  left: 1rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+  animation: auctionPulseHome 1.8s ease-in-out infinite;
+}
+@keyframes auctionPulseHome {
+  0%, 100% { box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 5px 30px rgba(239, 68, 68, 0.7), 0 0 0 6px rgba(239, 68, 68, 0.15); }
+}
+
+.price-value.auction-price {
+  background: linear-gradient(135deg, #ea580c, #b91c1c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.auction-meta-home {
+  display: block;
+  font-size: 0.72rem;
+  color: #b91c1c;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
 .project-image {
   height: 200px;
   overflow: hidden;

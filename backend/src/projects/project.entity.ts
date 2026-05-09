@@ -9,6 +9,11 @@ export enum ProjectStatus {
   REJECTED = 'rejected',
 }
 
+export enum ListingType {
+  FIXED = 'fixed',
+  AUCTION = 'auction',
+}
+
 export enum ProjectCategory {
   DOMAINS = 'domains',
   WEBSITES = 'websites',
@@ -126,6 +131,32 @@ export class Project {
 
   @Column({ default: false })
   isFeatured: boolean;
+
+  // Auction fields
+  @Column({
+    type: 'simple-enum',
+    enum: ListingType,
+    default: ListingType.FIXED,
+  })
+  listingType: ListingType;
+
+  @Column({ type: 'timestamp', nullable: true })
+  auctionEndsAt: Date | null;
+
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
+  minBid: number | null;
+
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
+  currentHighBid: number | null;
+
+  @Column({ nullable: true })
+  currentHighBidderId: string | null;
+
+  @Column({ default: 0 })
+  bidCount: number;
+
+  @Column({ default: false })
+  auctionFinalized: boolean;
 
   // Owner
   @ManyToOne(() => User, { eager: true })

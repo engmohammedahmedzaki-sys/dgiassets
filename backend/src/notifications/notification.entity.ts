@@ -15,6 +15,9 @@ export enum NotificationType {
   DEAL_COMPLETED = 'deal_completed',
   DISPUTE_OPENED = 'dispute_opened',
   NEW_MESSAGE = 'new_message',
+  PROJECT_SUBMITTED = 'project_submitted',
+  PROJECT_APPROVED = 'project_approved',
+  PROJECT_REJECTED = 'project_rejected',
   SYSTEM = 'system',
 }
 

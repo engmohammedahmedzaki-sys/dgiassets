@@ -7,6 +7,7 @@ const INTEGRATION_FIELDS = [
   'moyasarSecretKey', 'moyasarPublishableKey', 'moyasarEnabled',
   'googleClientId', 'googleClientSecret', 'googleAuthEnabled',
   'smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smtpFrom', 'smtpEnabled',
+  'openaiApiKey', 'openaiModel', 'openaiEnabled',
 ] as const;
 
 @Injectable()
@@ -64,6 +65,11 @@ export class SettingsService implements OnModuleInit {
       smtpPass: this.maskKey(settings.smtpPass),
       hasSmtpPass: !!settings.smtpPass,
       smtpFrom: settings.smtpFrom,
+
+      openaiEnabled: settings.openaiEnabled,
+      openaiModel: settings.openaiModel ?? 'gpt-4o-mini',
+      openaiApiKey: this.maskKey(settings.openaiApiKey),
+      hasOpenaiApiKey: !!settings.openaiApiKey,
     };
   }
 
@@ -73,7 +79,7 @@ export class SettingsService implements OnModuleInit {
       if (key in data) {
         const v = (data as any)[key];
         if (v === '' || v === null) {
-          if (key.includes('Key') || key.includes('Secret') || key === 'smtpPass') continue;
+          if (key.includes('Key') || key.includes('Secret') || key === 'smtpPass' || key === 'openaiApiKey') continue;
           (clean as any)[key] = null;
         } else {
           (clean as any)[key] = v;

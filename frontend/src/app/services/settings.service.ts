@@ -28,6 +28,11 @@ export interface SiteSettings {
   headCode?: string;
   bodyCode?: string;
   footerCode?: string;
+
+  // Marketplace economics
+  commissionPercentage?: number;
+  inspectionDays?: number;
+  holdbackPercentage?: number;
 }
 
 export interface IntegrationSettings {
@@ -48,6 +53,11 @@ export interface IntegrationSettings {
   smtpPass: string;
   hasSmtpPass: boolean;
   smtpFrom: string;
+
+  openaiEnabled: boolean;
+  openaiApiKey: string;
+  hasOpenaiApiKey: boolean;
+  openaiModel: string;
 }
 
 @Injectable({

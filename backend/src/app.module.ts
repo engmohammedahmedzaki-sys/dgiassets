@@ -17,6 +17,8 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { KycModule } from './kyc/kyc.module';
 import { NdaModule } from './nda/nda.module';
+import { BidsModule } from './bids/bids.module';
+import { ValuationModule } from './valuation/valuation.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { NdaModule } from './nda/nda.module';
     NotificationsModule,
     KycModule,
     NdaModule,
+    BidsModule,
+    ValuationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

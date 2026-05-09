@@ -96,4 +96,16 @@ export class HomeComponent implements OnInit {
     const c = this.categories.find(c => c.value === value);
     return c?.name || value;
   }
+
+  remainingTime(endsAt?: string | null): string {
+    if (!endsAt) return '';
+    const diff = new Date(endsAt).getTime() - Date.now();
+    if (diff <= 0) return '⏱️ انتهى';
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    if (days > 0) return `⏱️ ${days}ي ${hours}س متبقية`;
+    if (hours > 0) return `⏱️ ${hours}س ${minutes}د متبقية`;
+    return `⏱️ ${minutes}د متبقية`;
+  }
 }
