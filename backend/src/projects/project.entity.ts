@@ -149,7 +149,7 @@ export class Project {
   @Column('decimal', { precision: 12, scale: 2, nullable: true })
   currentHighBid: number | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   currentHighBidderId: string | null;
 
   @Column({ default: 0 })
